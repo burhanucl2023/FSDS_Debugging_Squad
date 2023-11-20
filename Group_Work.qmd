@@ -50,7 +50,7 @@ jupyter:
 
 ## Declaration of Authorship {.unnumbered .unlisted}
 
-We, [Debugging Squad], confirm that the work presented in this assessment is our own. Where information has been derived from other sources, we confirm that this has been indicated in the work. Where a Large Language Model such as ChatGPT has been used we confirm that we have made its contribution to the final submission clear.
+We, [The Debugging Squad], confirm that the work presented in this assessment is our own. Where information has been derived from other sources, we confirm that this has been indicated in the work. Where a Large Language Model such as ChatGPT has been used we confirm that we have made its contribution to the final submission clear.
 
 Date:
 
@@ -113,17 +113,28 @@ else:
 
 ## 1. Who collected the data?
 
+The data for the Inside Airbnb Project is collected and managed by the project itself. The data utilizes public information compiled from the Airbnb website including the availability calendar for 365 days in the future, and the reviews for each listing. Data is verified, cleansed, analyzed, and aggregated. Inside Airbnb was founded by Murray Cox, an artist, activist and technologist who conceived the project, compiled and analyzed the data, and built the site. John Morris, a designer and artist, designed and directed the user experience. Apart from these two, Taylor Higgins works to build and organize the data and activist communities of Inside Airbnb.(http://insideairbnb.com/about/).
+
+The project also has a process for handling archived data requests, where requests for larger amounts of data, historical data, or data for uses outside the project's mission may be assessed and, in some cases, refused or subject to payment. 
+
 ::: {.duedate}
 
 ( 2 points; Answer due Week 7 )
 
 :::
 
+
 An inline citation: As discussed on @insideairbnb, there are many...
 
 A parenthetical citation: There are many ways to research Airbnb [see, for example, @insideairbnb]... 
 
 ## 2. Why did they collect it?
+
+Founded in 2008, Airbnb is a company providing a peer to peer platform for short-term rental accommodations. Private and commercial entities can offer whole accommodations or individual rooms for rent through the website or app. Today, Airbnb has over 4 million active hosts (https://news.airbnb.com/about-us/).
+
+Inside Airbnb is a mission-driven activist project with the objective to make information about the impact of Airbnb on local communities available. The objective is to "provide data that quantifies the impact of short-term rentals on housing and residential communities, as well as create a platform to support advocacy for policies to protect our cities from the impacts of short-term rentals" (http://insideairbnb.com/data-policies).
+
+The main purpose is not only to quantify these impacts, but also to build a platform for advocating for policies that safeguard cities from the negative repercussions of short-term rentals. Inside Airbnb data is used as a tool for housing and community activists, journalists, residents, and local administration to better understand, regulate, and manage concerns related to Airbnb and other short-term rental sites.
 
 ::: {.duedate}
 
