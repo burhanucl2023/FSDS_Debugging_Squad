@@ -156,6 +156,11 @@ ax.set_xlim([0,500]);
 ::: {.duedate}
 
 ( 5 points; Answer due Week 8 )
+The data on Inside Airbnb was collected through a process of web scraping from the Airbnb website. The data on individual Airbnb Listings is extracted from the Airbnb website for a specified search area, e.g. a city. Inside Airbnb has collected data for a range of cities in Europe and North America (92 cities). For Asia and the Pacific, Africa and South America data was collected only for a few major cities (21 cities) (see: http://insideairbnb.com/explore). 
+
+For each listing, Inside Airbnb collects a variety of data points including on the host (e.g. host name, ID, location, description, picture, total listings count), on the location (e.g. neighborhood, longitude and latitude), on the property (e.g. description, picture, property type, how many people it accommodates, number of bathrooms, bedrooms, beds and other amenities), on the price, on the stay (e.g. min and maximum number of nights and availability),and on reviews (e.g. number of reviews, overall satisfaction rating but not individual reviews). 
+
+According to the website, the collected data is verified, cleansed, analyzed and aggregated by Inside Airbnb. (http://insideairbnb.com/data-assumptions/)
 
 :::
 
@@ -164,6 +169,12 @@ ax.set_xlim([0,500]);
 ::: {.duedate}
 
 ( 11 points; Answer due Week 9 )
+
+Inside Airbnb seeks to provide data to study Airbnb’s impact on residential communities. Web scraping the Airbnb website as a method for data collection means that the dataset shows a snapshot of listings available at a particular time. The Airbnb website is changing continuously as users add, delete or change listings. As illustrated by Cox and Slee (2016), the website can dramatically change from one day to the next. In 2015, Airbnb published data on their operation in New York using a snapshot of November 17, 2015. The data was misleading as they did not show that a  targeted purge of more than 1,000 listings was implemented just before that date. In order to accurately study the impact of Airbnb on local communities, comparing data over time would be beneficial. 
+
+For the London dataset, used in this assignment, the Airbnb website was scraped on two dates 023-09-06 and 2023-09-07. The dataset seems to be fairly complete. NA values are prominent (over 1000 na values) in the columns reviews_per_month, licence, review_scores_rating_bathroom, bedrooms.
+
+Murray, Slee (2016) How Airbnb’s Data hid the Facts in New York City, available here: http://insideairbnb.com/research/how-airbnb-hid-the-facts-in-nyc.
 
 :::
 
