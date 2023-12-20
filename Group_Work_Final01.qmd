@@ -687,7 +687,6 @@ The results show how few individual hosts there are in inner London, such as Cam
 
 ???
 
-
 ```{python}
 import pandas as pd
 
@@ -1130,3 +1129,4 @@ cbar = plt.colorbar(sm, ax=ax)  # define prarmeter of ax
 plt.tight_layout()
 plt.show()
 ```
+
