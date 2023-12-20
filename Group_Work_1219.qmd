@@ -319,6 +319,27 @@ listings_df = pd.read_csv(cached_file_path)
 print('Done.')
 ```
 
+# Loading borough map
+
+```{python}
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+# Load the London borough boundary shapefile
+# gdf = gpd.read_file("C:/Users/avb19/Documents/CASA/FSDS/FSDS_Debugging_Squad/ESRI/London_Borough_Excluding_MHW.shp")
+
+ddir  = os.path.join('data','geo') # destination directory
+spath = 'https://github.com/jreades/fsds/blob/master/data/src/' # source path
+
+gdf = gpd.read_file( cache_data(spath+'Boroughs.gpkg?raw=true', ddir) )
+
+print(gdf.crs)
+print(gdf.head())
+print(gdf.columns)
+
+gdf.plot()
+```
+
 # Data Cleaning
 
 ## Select columns
@@ -419,7 +440,6 @@ print(f"Data frame is now {listings_df1.shape[0]:,} x {listings_df1.shape[1]}")
 # Prints: Data frame is now 87,938 x 30
 ```
 
-
 ```{python}
 #there are also some columns that should be numeric. Converting columns into integers.  
 ints  = ['id', 'host_id', 'host_listings_count', 'host_total_listings_count', 
@@ -490,19 +510,12 @@ https://boscoin.io/the-average-price-of-an-air-bnb-in-london/
 
 https://www.airdna.co/vacation-rental-data/app/gb/london/london/overview
 
-**Plot a histogram when we didn't remove strange price**
+**Conclusion: We can set a special number to filter all rows which price is larger than this number**
+
+## Convert the format of 'price'
 
 ```{python}
-# plot price in historam 
-listings_df1.price.plot.hist(bins=50)
-# We can try bins = 500 as an example
-```
-
-```{python}
-# listings_df1 = pd.read_csv(cached_file_path)[cols]
-```
-
-```{python}
+# convert the column 'price'
 ints_price  = ['price']
 for i in ints_price:
     print(f"Converting {i}")
@@ -513,20 +526,22 @@ for i in ints_price:
         df[i] = listings_df1[i].astype('float').astype(pd.UInt16Dtype())
 ```
 
+## Filter too large number in 'price'
+
 ```{python}
-# 查看'price'列中大于4000的行数
-count_gt_4000 = len(listings_df1[listings_df1['price'] > 4000])
+# set '2000' as special number, check and show the rows which 'price' is larger than '2000'
+count_gt_2000 = len(listings_df1[listings_df1['price'] > 2000])
+rows_gt_2000 = listings_df1[listings_df1['price'] > 2000]
+print(rows_gt_2000['price'])
+print(f"The number of row which 'price' is larger than '2000'：{count_gt_2000} rows")
+```
 
-# 显示'price'列大于4000的行
-rows_gt_4000 = listings_df1[listings_df1['price'] > 4000]
+```{python}
+shit = rows_gt_2000[rows_gt_2000['number_of_reviews_ltm']>0]
 
-print(rows_gt_4000['price'])
-print(f"行数大于4000的行数：{count_gt_4000} 条")
-
-shit = rows_gt_4000[rows_gt_4000['number_of_reviews_ltm']>0]
 print(shit[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
 
-print(rows_gt_4000[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
+#print(rows_gt_2000[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
 ```
 
 **Check another listing**
@@ -559,7 +574,7 @@ import numpy as np
 
 # Plot histogram with prices less than 4000
 plt.figure(figsize=(10, 6))
-listings_df1[listings_df1['price'] < 1000]['price'].plot.hist(bins=100)
+price_histogram = listings_df1[listings_df1['price'] < 2000]['price'].plot.hist(bins=200)
 plt.xlabel('Price')
 plt.ylabel('Frequency')
 plt.title('Histogram of Prices Below 1000')
@@ -567,19 +582,12 @@ plt.grid(True)
 plt.show()
 ```
 
-### Plot.scatter
-
-```{python}
-#plotting 
-listings_df1.plot.scatter(x='longitude', y='latitude', c='price', s=2, cmap='viridis', figsize=(15,10))
-```
+## Plot.scatter of price distribution
 
 ```{python}
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
-
-# 假设你的DataFrame名为listings_df1
 
 # 定义价格区间
 price_ranges = [(0, 100), (100, 200), (200, 300), (300, float('inf'))]
@@ -599,12 +607,151 @@ plt.ylabel('Latitude')
 plt.title('Custom Price Range Scatter Plot with Viridis Colormap')
 plt.grid(True)
 plt.show()
+```
 
+```{python}
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import pandas as pd
+import pysal as p
+import mapclassify as mc
+import palettable.matplotlib as palmpl
+from legendgram import legendgram
+
+# If your gdf is not in WGS 84 (latitude/longitude), and your listings_df1 data is in WGS 84, you need to convert it.
+# Ensure listings data is in a GeoDataFrame with the correct CRS.
+gdf_listings = gpd.GeoDataFrame(
+    listings_df1,
+    geometry=gpd.points_from_xy(listings_df1.longitude, listings_df1.latitude),
+    crs="EPSG:4326"  # WGS 84
+)
+# Now convert the listings GeoDataFrame to match the CRS of the borough boundaries GeoDataFrame.
+gdf_listings = gdf_listings.to_crs(gdf.crs)
+
+# define price_range
+price_ranges = [(0, 100), (100, 200), (200, 300), (300, float('inf'))]
+
+# create a new column 'price_range', reflect prices by 'price_range' to the corresponding labels 
+listings_df1['price_range'] = pd.cut(listings_df1['price'], 
+                                       bins=[0, 100, 200, 300, float('inf')],
+                                       labels=['(0, 100)', '(100, 200)', '(200, 300)', '300+'],
+                                       right=False)
+
+# Now we can plot both on the same Axes object.
+fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+# Set the color of the boroughs.
+gdf.plot(ax=ax, color='none', edgecolor='black', facecolor='black', linewidth=1.5)  
+
+gdf_listings.plot(ax=ax, column='price_range', cmap='RdBu_r', legend=True, 
+                 marker='.', markersize=3, zorder=4)
+
+# Customize the legend
+#leg = ax.get_legend()
+#leg.set_bbox_to_anchor((1, 0.5))
+#leg.set_frame_on(True)
+
+# Set axis labels and title using a specified font, weight, and size
+ax.set_xlabel('Easting')
+ax.set_ylabel('Northing')
+ax.set_title('Airbnb Listing Price Distribution in London Borough', 
+             fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
+
+plt.show()
 # 删除创建的price_range列
-listings_df1.drop(columns=['price_range'], inplace=True)
+#listings_df1.drop(columns=['price_range'], inplace=True)
+```
+
+# Box plot
+
+```{python}
+# 计算价格列的1%和99%分位数
+percentile_05 = listings_df1['price'].quantile(0.05)
+percentile_95 = listings_df1['price'].quantile(0.95)
+
+# 选择位于1%到99%分位数范围内的数据
+data = listings_df1[(listings_df1['price'] >= percentile_05) & (listings_df1['price'] <= percentile_95)]['price']
+
+# selected_data 现在包含了1%到99%分位数范围内的数据
+```
+
+```{python}
+# 创建一个新的图形
+plt.figure(figsize=(5, 8))
+
+# 创建箱线图（竖向）
+plt.boxplot(data, vert=True)  # vert=True 表示竖向箱线图
+
+# 创建数据点的x坐标（沿着纵坐标排列）
+#x_coordinates = np.ones(len(data))
+x_coordinates = np.random.normal(1, 0.04, size=len(data))  # 添加轻微的扰动以避免重叠
+
+# 添加数据点
+plt.scatter(x_coordinates, data, color='red', marker='o', s=0.5, label='Data Points', alpha = 0.2)
+
+# 设置异常值的样式，包括标记大小和颜色
+flierprops = dict(marker='o', markerfacecolor='blue', markersize=5, linestyle='none', markeredgecolor='black')
+
+# 创建箱线图（竖向），并设置须的样式和异常值的样式
+whiskerprops = {'linewidth':0.5}
+plt.boxplot(data, vert=True, whiskerprops=whiskerprops, flierprops=flierprops)
+
+# 设置X轴刻度标签
+plt.xticks([1], ['Data'])
+
+# 显示图例
+plt.legend()
+
+# 标注最小值、第一四分位数、中位数、第三四分位数和最大值的数值
+plt.text(0.75, min(data), f'Minimum: {min(data):.2f}', va='bottom', ha='center')
+plt.text(0.75, np.percentile(data, 25), f'1st Quartile: {np.percentile(data, 25):.2f}', va='bottom', ha='center')
+plt.text(0.75, np.median(data), f'Median: {np.median(data):.2f}', va='bottom', ha='center')
+plt.text(0.75, np.percentile(data, 75), f'3rd Quartile: {np.percentile(data, 75):.2f}', va='bottom', ha='center')
+plt.text(0.75, max(data), f'Maximum: {max(data):.2f}', va='bottom', ha='center')
+
+# 显示图表
+plt.show()
 ```
 
 
+
+# Host type_Host中local host占总数的多少
+
+```{python}
+import pandas as pd
+
+# Updated function to calculate the ratio of single listings by neighbourhood
+def calculate_host_type(group):
+    # Calculate the count of single listings
+    single_listings_count = (group['calculated_host_listings_count'] == 1).sum()
+    # Calculate the ratio of single listings
+    local_host_proportion = single_listings_count / len(group)
+    # Return the ratio with the neighbourhood name
+    return pd.Series({'local_host_proportion': local_host_proportion})
+
+# Group by neighbourhood and apply the calculation, then reset index
+local_host_proportion_df = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_host_type).reset_index()
+
+# Display the resulting DataFrame
+local_host_proportion_df
+```
+
+```{python}
+import matplotlib.pyplot as plt
+import geopandas as gpd
+
+# Merge your data with the GeoDataFrame
+# Make sure the left and right column names are correct
+local_host_proportion_df_gdf = gdf.merge(local_host_proportion_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+local_host_proportion_df_gdf.plot(column='local_host_proportion', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white', 
+                   legend_kwds={'label': "Proportion by Borough",
+                                'orientation': "vertical",
+                                'shrink': 0.7})
+# Show the plot
+plt.show()
+```
 
 # Yicong's work of Calculating_Based on dataframe before
 
@@ -788,7 +935,6 @@ host_income_quarter = listings_df1_localhost['host_income'].sum()
 print(f"The host income for the quarter: ${host_income_quarter:.2f}")
 ```
 
-
 ## 1.2 Tourist local spending =  occupancy rate * number of nights * number of people * 30GBP 
 
 ### 1.2.0: First of all
@@ -838,47 +984,9 @@ tourist_local_spending_quarter = listings_df1['tourist_local_spending'].sum()
 print(f"The host income for the quarter: ${tourist_local_spending_quarter:.2f}")
 ```
 
-
-
 # Make all boroughs work
 
-```{python}
-import pandas as pd
-
-# 假设df_2023_Season4_SC是你的原始DataFrame，并且它包含列'neighbourhood_cleansed', 'number_of_reviews_ltm', 'price', 和 'minimum_nights'
-
-# 为了计算每个区域的入住率和房东收入，你可以使用以下函数
-def calculate_host_income(df):
-    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
-    df['host_income'] = df['price'] * df['occupancy_rate'] * df['minimum_nights']
-    return df['host_income'].sum()
-
-# 使用groupby方法按区域分组，并应用calculate_metrics函数
-income_by_borough = listings_df1_localhost.groupby('neighbourhood_cleansed').apply(calculate_host_income)
-
-# income_by_borough现在是一个字典，其键是区域名，值是每个区域的总收入
-print(income_by_borough)
-```
-
-```{python}
-import pandas as pd
-
-# 假设df_2023_Season4_SC是你的原始DataFrame，并且它包含列'neighbourhood_cleansed', 'number_of_reviews_ltm', 'price', 和 'minimum_nights'
-
-# 为了计算每个区域的入住率和房东收入，你可以使用以下函数
-def calculate_tourist_local_spending(df):
-    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
-    df['tourist_local_spending'] = df['occupancy_rate'] * df['minimum_nights'] * df['accommodates'] * 30
-    return df['tourist_local_spending'].sum()
-
-# 使用groupby方法按区域分组，并应用calculate_metrics函数
-spending_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_tourist_local_spending)
-
-# income_by_borough现在是一个字典，其键是区域名，值是每个区域的总收入
-print(spending_by_borough)
-print(type(spending_by_borough))
-```
-
+## Dataframe 'income_by_borough_df'
 
 ```{python}
 import pandas as pd
@@ -894,20 +1002,35 @@ def calculate_host_income(df):
 # 使用groupby方法按区域分组，并应用calculate_metrics函数
 income_by_borough = listings_df1_localhost.groupby('neighbourhood_cleansed').apply(calculate_host_income)
 
-# income_by_borough现在是一个字典，其键是区域名，值是每个区域的总收入
-print(income_by_borough)
+# Convert the result to a DataFrame with the correct column name.
+income_by_borough_df = income_by_borough.reset_index(name='income_by_borough')
 
+print(type(income_by_borough_df))
+income_by_borough_df
+```
+
+## Dataframe 'spending_by_borough_df'
+
+```{python}
+import pandas as pd
+
+# The function to calculate tourist_local_spending.
 def calculate_tourist_local_spending(df):
     df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
     df['tourist_local_spending'] = df['occupancy_rate'] * df['minimum_nights'] * df['accommodates'] * 30
     return df['tourist_local_spending'].sum()
 
-# 使用groupby方法按区域分组，并应用calculate_metrics函数
+# Applying the function to the grouped data.
 spending_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_tourist_local_spending)
 
-# income_by_borough现在是一个字典，其键是区域名，值是每个区域的总收入
-print(spending_by_borough)
+# Convert the result to a DataFrame with the correct column name.
+spending_by_borough_df = spending_by_borough.reset_index(name='spending_by_borough')
+
+print(type(spending_by_borough_df))
+spending_by_borough_df
 ```
+
+## Dataframe 'neighborhood_counts'
 
 ```{python}
 import pandas as pd
@@ -916,55 +1039,169 @@ import pandas as pd
 # ...
 
 # 使用 groupby() 和 size() 方法计算每个变量对应行的总数
-neighborhood_counts = df.groupby('neighbourhood_cleansed').size().reset_index(name='total_count')
+neighborhood_counts = listings_df1.groupby('neighbourhood_cleansed').size().reset_index(name='total_listings')
 
 # 或者使用 count() 方法，效果相同
 # neighborhood_counts = df.groupby('neighbourhood_cleansed').count().reset_index()
 
 # 打印结果
-print(neighborhood_counts)
+
+print(type(neighborhood_counts))
+neighborhood_counts
+```
+
+## Merge these dataframes all together
+
+```{python}
+import pandas as pd
+
+# Merging the dataframes on 'neighbourhood_cleansed'
+merged_df = income_by_borough_df.merge(spending_by_borough_df, on='neighbourhood_cleansed')
+merged_df = merged_df.merge(neighborhood_counts, on='neighbourhood_cleansed')
+merged_df['contribution_per_listing'] = (merged_df['income_by_borough'] + merged_df['spending_by_borough']) / merged_df['total_listings']
+
+merged_df
 ```
 
 ```{python}
-# Create a list of boroughs
-boroughs = list(set(listings_df1['neighbourhood_cleansed'].tolist()))
+# Merge your data with the GeoDataFrame
+merged_gdf = gdf.merge(merged_df, left_on='NAME', right_on='neighbourhood_cleansed')
 
-# boroughs = np.unique(listings_df1['neighbourhood_cleansed'].tolist())
-print(boroughs)
-# Prints: ['Kingston upon Thames', 'Haringey', 'Hackney', 'Hammersmith and Fulham', 'Croydon', 'Hillingdon', 'Lewisham', 'Hounslow', 'Ealing', 'Redbridge', 'Havering', 'Sutton', 'Barking and Dagenham', 'Waltham Forest', 'Newham', 'Westminster', 'Brent', 'City of London', 'Merton', 'Harrow', 'Wandsworth', 'Islington', 'Richmond upon Thames', 'Tower Hamlets', 'Enfield', 'Barnet', 'Southwark', 'Camden', 'Lambeth', 'Greenwich', 'Bromley', 'Bexley', 'Kensington and Chelsea']
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+merged_gdf.plot(column='contribution_per_listing', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
+                legend_kwds={'label': "Proportion by Borough",
+                             'orientation': "vertical",
+                             'shrink': 0.7})
+plt.show()
 ```
 
 ```{python}
-# 假设 income_by_borough、spending_by_borough 和 neighborhood_counts 都是 Pandas Series
+import matplotlib.pyplot as plt
+import geopandas as gpd
 
-# 计算每个区域的 ratio，将结果存储在一个新的 Pandas Series 中
-ratios = (income_by_borough + spending_by_borough) / neighborhood_counts
+# Assuming 'gdf' is your GeoDataFrame with the London borough boundaries
+# and 'merged_df' is your DataFrame with the 'ratio' column.
 
-# 打印 ratios Series
-print(ratios)
+# Merging the GeoDataFrame with your data
+merged_gdf = gdf.merge(merged_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Creating the plot
+fig, ax = plt.subplots(1, 1, figsize=(15, 15))
+merged_gdf.plot(column='contribution_per_listing', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
+                legend_kwds={'label': "Proportion by Borough",
+                             'orientation': "vertical", 
+                             'shrink': 0.7})
+
+# Adding the borough names to the plot
+for idx, row in merged_gdf.iterrows():
+    plt.annotate(text=row['NAME'], xy=(row['geometry'].centroid.x, row['geometry'].centroid.y), ha='center', fontsize=8)
+
+# Adding a title to the plot
+plt.title('Economic Contribution in London Boroughs (per listing)', fontsize=20)
+
+# Removing the axes for a cleaner look
+ax.set_axis_off()
+
+# Display the plot
+plt.show()
 ```
 
 ```{python}
-for b in boroughs:
-    ratio = (income_by_borough[b] + spending_by_borough[b]) / neighborhood_counts[b]
-    print(f"Ratio for {b}: {ratio}")
+import pandas as pd
+import matplotlib.pyplot as plt
 
+# Since we cannot directly access the content of the image, let's assume that the dataframe is available as `df`.
+# The actual implementation would require converting the image data to a pandas DataFrame.
+# The following is a placeholder for the actual DataFrame creation process.
 
+# Sorting the DataFrame by ratio in descending order for better visual representation
+merged_sorted_df = merged_df.sort_values('contribution_per_listing', ascending=True)
 
+# Set a color board
+cmap = plt.get_cmap('RdBu_r')
+norm = mcolors.Normalize(vmin=merged_sorted_df['contribution_per_listing'].min(), vmax=merged_sorted_df['contribution_per_listing'].max())
+colors = cmap(norm(merged_sorted_df['contribution_per_listing']))
+
+# Plotting the bar chart
+plt.figure(figsize=(10, 8))
+plt.barh(merged_sorted_df['neighbourhood_cleansed'], merged_sorted_df['contribution_per_listing'], color = colors)
+plt.xlabel('contribution_per_listing', fontsize = 12)
+plt.ylabel('Neighbourhood', fontsize = 12)
+plt.title('Economic Contribution in London Boroughs (per listing)', fontsize = 20)
+
+# Create a color string
+sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+sm.set_array([])  # Just show the color string
+plt.colorbar(sm)
+
+plt.tight_layout()
+plt.show()
 ```
-
-
-
-
-
 
 ```{python}
-def ratio(df):
-    for b in boroughs:
-    ratio = (income_by_borough[b] + spending_by_borough[b]) / listings_df1[listings_df1['neighbourhood_cleansed'] == b].sum(axis=0)
-    return ratio
-
-print(ratio)
-
-
+merged_sorted1_df = merged_df.sort_values('contribution_per_listing', ascending=False)
+# Plotting the vertical bar chart
+plt.figure(figsize=(12, 8))
+plt.bar(merged_sorted1_df['neighbourhood_cleansed'], merged_sorted1_df['contribution_per_listing'], color='skyblue')
+plt.ylabel('Ratio')
+plt.xlabel('Neighbourhood')
+plt.title('Ratio by Neighbourhood')
+plt.xticks(rotation=90)  # Rotate x-axis labels to ensure they're readable
+plt.tight_layout()
+plt.show()
 ```
+
+# Occupancy
+
+```{python}
+import pandas as pd
+
+# calculate the occupancy day in 2023 year
+def calculate_occupancy(df):
+    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
+    df['occupancy'] = df['occupancy_rate'] * df['minimum_nights']
+    return df['occupancy'].sum()
+
+# use groupby() divide into boroughs and apply calculate_occupancy() function
+occupancy_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_occupancy)
+
+# Convert the result to a DataFrame with the correct column name.
+occupancy_by_borough_df = occupancy_by_borough.reset_index(name='occupancy')
+
+print(type(occupancy_by_borough_df))
+occupancy_by_borough_df
+```
+
+```{python}
+import pandas as pd
+
+# Merging the dataframes on 'neighbourhood_cleansed'
+merged_occupancy_df = occupancy_by_borough_df.merge(neighborhood_counts, on='neighbourhood_cleansed')
+merged_occupancy_df['avarage_occupancy_day'] = merged_occupancy_df['occupancy'] / merged_occupancy_df['total_listings']
+
+merged_occupancy_df
+```
+
+```{python}
+# Make a Map
+
+# Merge your data with the GeoDataFrame
+merged_occupancy_gdf = gdf.merge(merged_occupancy_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+merged_occupancy_gdf.plot(column='avarage_occupancy_day', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
+                legend_kwds={'label': "Ratio by Borough",
+                             'orientation': "vertical", 
+                             'shrink': 0.7})
+# Show the plot
+plt.show()
+```
+
+
+
+
+
+
+
