@@ -1,5 +1,5 @@
 ---
-bibliography: Reading(1).bib
+bibliography: Readings.bib
 csl: harvard-cite-them-right.csl
 title: Group Debugging Squad
 execute:
@@ -113,45 +113,37 @@ else:
 
 ## 1. Who collected the data?
 
-The data on @insideairbnb was collected by the Inside Airbnb Project team, which is led by Murray Cox, an artist, activist and technologist. 
+The data on the Inside Airbnb website was collected by the Inside Airbnb Project team, which is led by Murray Cox, an artist, activist and technologist [@insideairbnb]. 
 
 ## 2. Why did they collect it?
 
-Airbnb is a company providing a peer to peer platform for short-term rental (STR) accommodations in cities around the world with over 4 million active hosts today. (https://news.airbnb.com/about-us/). 
+Airbnb is a company providing a peer to peer platform for short-term rental (STR) accommodations in cities around the world with over 4 million active hosts [@airbnb]. 
 
-The Inside Airbnb Project has two objectives 
+As outlined in its data policies, Inside Airbnb has two objectives [@insideairbnb]:  
 
-1.	Make data on Airbnb listings available for analysis and research to quantify the impact of STR on local communities.
+1.	Make data on Airbnb listings available for analysis and to quantify the impact of STR on local communities.
     
-3.	Provide a platform for community members, researchers, activists or policy makers to support policy and regulation that limits adverse impacts of Airbnb STR on local communities. 
-
-(http://insideairbnb.com/data-policies).
+3.	Provide a platform for community members, researchers, activists and policy makers to advocate for policies that mitigate Airbnb's negative impacts on local communities. 
 
 ## 3. How was the data collected?  
 
-The data on Inside Airbnb was collected through a process of web scraping. Data on individual listings is extracted from the Airbnb website for different cities. Inside Airbnb has collected data for 92 cities in Europe and North America and 21 cities in Asia and the Pacific, Africa, South America. For each listing, a range of data points is collected including on the host, location, property and room type, price, stay, and reviews. The collected data is verified, cleansed, analysed and aggregated by the Inside Airbnb project team and stored in a csv files for each city, which is made available for downloading.  The process of web scraping is usually repeated 4 times a year. So, there a four data sets per city per year. 
-
-(http://insideairbnb.com/data-assumptions/)
-
+Inside Airbnb's data was collected through webscraping. Data on individual listings is extracted from the Airbnb website for different cities. Inside Airbnb has collected data for 92 cities in Europe and North America and 21 cities in Asia and the Pacific, Africa, South America. For each listing, a range of data points is collected including on the host, location, property/room type, price, stay, and reviews. The collected data is verified, cleaned, analysed and aggregated by the project team and stored in seperate csv files for each city, which are available to download.  To remain uptodate, the process of webscraping is usually repeated four times a year. So, there a four data sets per city per year [@insideairbnb]. 
 
 ## 4. How does the method of collection impact the completeness and/or accuracy of its representation of the process it seeks to study, and what wider issues does this raise?
 
-Web scraping the Airbnb website as a method for data collection means that the dataset shows a snapshot of listings available at a particular time. The Airbnb website is changing continuously as users add, delete or change listings. As illustrated by Cox and Slee (2016), the website can dramatically change from one day to the next. In 2015, Airbnb published data on their operation in New York using a snapshot of November 17, 2015. The data was misleading as they did not show that a  targeted purge of more than 1,000 listings was implemented just before that date. In order to accurately study the impact of Airbnb on local communities, comparing data over time would be beneficial. 
-
-Murray, Slee (2016) How Airbnb’s Data hid the Facts in New York City, available here: http://insideairbnb.com/research/how-airbnb-hid-the-facts-in-nyc.
+The datasets show a snapshot of listings available at a particular time. The Airbnb website is changing continuously as users add, delete or change listings. As illustrated by @Murray2016, the website can dramatically change from one day to the next. In 2015, Airbnb published data on their operation in New York using a snapshot of November 17, 2015. The data was misleading as they did not show that a  targeted purge of more than 1,000 listings was implemented just before that date. In order to accurately study the impact of Airbnb on local communities, comparing data over time would be beneficial. 
 
 ## 5. What ethical considerations does the use of this data raise? 
 
 There are a number of ethical concerns to consider when using the data: 
 
--	Airbnb prohibits  data scraping in its terms and conditions (T&Cs). However, to be legally binding T&Cs require an agreement  from both parties. Logging into the website is considered as an agreement to the T&Cs. However, web scraping is an automated process without logging in and is hence considered legal.  Legalities of Airbnb API Scraping (airbtics.com)
+-	Airbnb prohibits  data scraping in its terms and conditions (T&Cs). However, for T&Cs to be binding, they require an agreement from both parties. Logging into the website is considered as agreement. However, as web scraping is an automated process without logging in, it is considered legal in this case.  [@airbtics]. 
 
--	The data collected includes personal information, e.g.,  images and names of hosts and their homes. Hosts did not give consent for their data to be included in the Inside Airbnb Project, however one could argue, that by making their data public on Airbnb they gave up data protection rights on this information.
+-	The data includes personal information, e.g.,  images and names of hosts and their homes. Hosts did not give consent for their data to be included in the Inside Airbnb Project, however one could argue, that by making their data public on Airbnb, they gave up data protection rights on this information.
   
--	Geocoded data is especially sensitive information.Showing negative impacts of Aibnb listing while also disclosing the location of these listings, may pose a safety risk to hosts. Airbnb mitigates this risk by anonymizing listings on the map, the location is within 150 metres of the actual address. https://www.tandfonline.com/doi/full/10.1080/03098265.2018.1436534
+-	Geocoded data is especially sensitive information.[@Bemt:2018] Disclosing the location of homes, could pose a safety risk to hosts. Airbnb mitigates this risk by anonymizing listings on the map. The location is within 150 metres of the actual address. 
   
--	As argued by post-colonial scholars, there tends to be more data and research about cities in the global north and a need to better understand spatial processes in cities of the global south, including those related to digital technologies, such as Airbnb. The Inside Airbnb Project has collected more data on cities in the Global North than cities in the Global South. Analysis using these data sets may be less suitable to describe the impact of cities in the Global South. https://www.tandfonline.com/doi/full/10.1080/0966369X.2018.1465396
-
+-	Post-colonial scholars argue that we need to better understand spatial processes in cities of the global south, including those related to digital technologies, such as Airbnb.[@Elwood:2018] Cities in the Global South are underrepresented on Inside Airbnb (see above) and correstonding analysis may have a Global North bias. 
 
 ## 6. With reference to the data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and Listing types suggest about the nature of Airbnb lets in London? 
 
@@ -327,6 +319,7 @@ print(listings_df1.columns.to_list())
 ```
 
 ```{python}
+#| jupyter: {source_hidden: true}
 # Identify problematic rows 
 listings_df1.isnull().sum(axis=0).sort_values(ascending=False)
 ```
