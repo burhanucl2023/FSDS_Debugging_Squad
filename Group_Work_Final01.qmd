@@ -664,13 +664,87 @@ local_host_proportion_df_gdf.plot(column='local_host_proportion', ax=ax, legend=
                    legend_kwds={'label': "Proportion of local host",
                                 'orientation': "vertical",
                                 'shrink': 0.7})
+
+# Set axis labels and title using a specified font, weight, and size
+ax.set_xlabel('Easting', fontsize=15)
+ax.set_ylabel('Northing', fontsize=15)
+ax.set_title('Proportion of local host in London Borough', 
+             fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
+
 # Show the plot
 plt.show()
 ```
 
+The results show how few individual hosts there are in inner London, such as Camdon and Westminster. In the outer London area, the ptoportion of individual hosts is high.
+
+```{python}
+???
+```
+
+## 6.3 "Occupancy" analysis
+
+"Occupancy" means the days listing is used per year. We can use item "occupancy rate" and "occupancy days per booking" to calculate. The exact calculation process will be shown in detail in Question 7.
+
+???
 
 
+```{python}
+import pandas as pd
 
+# calculate the occupancy day in 2023 year
+def calculate_occupancy(df):
+    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
+    df['occupancy'] = df['occupancy_rate'] * df['minimum_nights']
+    return df['occupancy'].sum()
+
+# use groupby() divide into boroughs and apply calculate_occupancy() function
+occupancy_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_occupancy)
+
+# Convert the result to a DataFrame with the correct column name.
+occupancy_by_borough_df = occupancy_by_borough.reset_index(name='occupancy')
+
+print(type(occupancy_by_borough_df))
+occupancy_by_borough_df
+```
+
+```{python}
+import pandas as pd
+
+# Merging the dataframes on 'neighbourhood_cleansed'
+merged_occupancy_df = occupancy_by_borough_df.merge(neighborhood_counts, on='neighbourhood_cleansed')
+merged_occupancy_df['avarage_occupancy_day'] = merged_occupancy_df['occupancy'] / merged_occupancy_df['total_listings']
+
+merged_occupancy_df
+```
+
+```{python}
+# Make a Map
+
+# Merge your data with the GeoDataFrame
+merged_occupancy_gdf = gdf.merge(merged_occupancy_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+merged_occupancy_gdf.plot(column='avarage_occupancy_day', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
+                legend_kwds={'label': "Avarage Occupancy Day",
+                             'orientation': "vertical", 
+                             'shrink': 0.7})
+
+# Set axis labels and title using a specified font, weight, and size
+ax.set_xlabel('Easting', fontsize=15)
+ax.set_ylabel('Northing', fontsize=15)
+ax.set_title('Avarage Occupancy Day in London Borough', 
+             fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
+
+# Show the plot
+plt.show()
+```
+
+The result shows that some boroughs have more occupancy days. It can be explained by different reasons. For inner London such as Camdon, Westminster and city of London, that's because it is more popular and convenient. For outer London such as Richmond upon Thames, the reason maybe its gentle environment.
+
+```{python}
+???
+```
 
 # 7. Drawing on your previous answers, and supporting your response with evidence (e.g. figures, maps, and statistical analysis/models), how could this data set be used to inform the regulation of Short-Term Lets (STL) in London?
 
@@ -1056,67 +1130,3 @@ cbar = plt.colorbar(sm, ax=ax)  # define prarmeter of ax
 plt.tight_layout()
 plt.show()
 ```
-
-```{python}
-merged_sorted1_df = merged_df.sort_values('contribution_per_listing', ascending=False)
-# Plotting the vertical bar chart
-plt.figure(figsize=(12, 8))
-plt.bar(merged_sorted1_df['neighbourhood_cleansed'], merged_sorted1_df['contribution_per_listing'], color='skyblue')
-plt.ylabel('Ratio')
-plt.xlabel('Neighbourhood')
-plt.title('Ratio by Neighbourhood')
-plt.xticks(rotation=90)  # Rotate x-axis labels to ensure they're readable
-plt.tight_layout()
-plt.show()
-```
-
-# Occupancy
-
-```{python}
-import pandas as pd
-
-# calculate the occupancy day in 2023 year
-def calculate_occupancy(df):
-    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
-    df['occupancy'] = df['occupancy_rate'] * df['minimum_nights']
-    return df['occupancy'].sum()
-
-# use groupby() divide into boroughs and apply calculate_occupancy() function
-occupancy_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_occupancy)
-
-# Convert the result to a DataFrame with the correct column name.
-occupancy_by_borough_df = occupancy_by_borough.reset_index(name='occupancy')
-
-print(type(occupancy_by_borough_df))
-occupancy_by_borough_df
-```
-
-```{python}
-import pandas as pd
-
-# Merging the dataframes on 'neighbourhood_cleansed'
-merged_occupancy_df = occupancy_by_borough_df.merge(neighborhood_counts, on='neighbourhood_cleansed')
-merged_occupancy_df['avarage_occupancy_day'] = merged_occupancy_df['occupancy'] / merged_occupancy_df['total_listings']
-
-merged_occupancy_df
-```
-
-```{python}
-# Make a Map
-
-# Merge your data with the GeoDataFrame
-merged_occupancy_gdf = gdf.merge(merged_occupancy_df, left_on='NAME', right_on='neighbourhood_cleansed')
-
-# Plot the map
-fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-merged_occupancy_gdf.plot(column='avarage_occupancy_day', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
-                legend_kwds={'label': "Ratio by Borough",
-                             'orientation': "vertical", 
-                             'shrink': 0.7})
-# Show the plot
-plt.show()
-```
-
-
-
-
