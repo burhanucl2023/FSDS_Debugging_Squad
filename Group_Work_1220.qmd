@@ -582,7 +582,6 @@ plt.grid(True)
 plt.show()
 ```
 
-
 ## Box plot
 
 ```{python}
@@ -634,8 +633,6 @@ plt.text(0.75, max(data), f'Maximum: {max(data):.2f}', va='bottom', ha='center')
 plt.show()
 ```
 
-
-
 ## Plot.scatter of price distribution
 
 ```{python}
@@ -682,9 +679,6 @@ plt.show()
 # 删除创建的price_range列
 #listings_df1.drop(columns=['price_range'], inplace=True)
 ```
-
-
-
 
 # Host type_Host中local host占总数的多少
 
