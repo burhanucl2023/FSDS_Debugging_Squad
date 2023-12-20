@@ -1,5 +1,5 @@
 ---
-bibliography: bio.bib
+bibliography: Reading(1).bib
 csl: harvard-cite-them-right.csl
 title: Group Debugging Squad
 execute:
@@ -120,39 +120,12 @@ The data on @insideairbnb was collected by the Inside Airbnb Project team, which
 Airbnb is a company providing a peer to peer platform for short-term rental (STR) accommodations in cities around the world with over 4 million active hosts today. (https://news.airbnb.com/about-us/). 
 
 The Inside Airbnb Project has two objectives 
-1.	Make data on Airbnb listings available for analysis and research to quantify the impact of STR on local communities. 
-2.	Provide a platform for community members, researchers, activists or policy makers to support policy and regulation that limits adverse impacts of Airbnb STR on local communities. 
+
+1.	Make data on Airbnb listings available for analysis and research to quantify the impact of STR on local communities.
+    
+3.	Provide a platform for community members, researchers, activists or policy makers to support policy and regulation that limits adverse impacts of Airbnb STR on local communities. 
 
 (http://insideairbnb.com/data-policies).
-
-
-:::
-
-```{python}
-#| jupyter: {source_hidden: true}
-print(f"Data frame is {df.shape[0]:,} x {df.shape[1]:,}")
-```
-
-```{python}
-ax = df.host_listings_count.plot.hist(bins=50);
-ax.set_xlim([0,500]);
-```
-
-```{python}
-#| jupyter: {source_hidden: true}
-## 3. How was the data collected?  
-
-::: {.duedate}
-
-( 5 points; Answer due Week 8 )
-The data on Inside Airbnb was collected through a process of web scraping from the Airbnb website. The data on individual Airbnb Listings is extracted from the Airbnb website for a specified search area, e.g. a city. Inside Airbnb has collected data for a range of cities in Europe and North America (92 cities). For Asia and the Pacific, Africa and South America data was collected only for a few major cities (21 cities) (see: http://insideairbnb.com/explore). 
-
-For each listing, Inside Airbnb collects a variety of data points including on the host (e.g. host name, ID, location, description, picture, total listings count), on the location (e.g. neighborhood, longitude and latitude), on the property (e.g. description, picture, property type, how many people it accommodates, number of bathrooms, bedrooms, beds and other amenities), on the price, on the stay (e.g. min and maximum number of nights and availability),and on reviews (e.g. number of reviews, overall satisfaction rating but not individual reviews). 
-
-According to the website, the collected data is verified, cleansed, analyzed and aggregated by Inside Airbnb. (http://insideairbnb.com/data-assumptions/)
-
-:::
-```
 
 ## 3. How was the data collected?  
 
@@ -167,17 +140,18 @@ Web scraping the Airbnb website as a method for data collection means that the d
 
 Murray, Slee (2016) How Airbnb’s Data hid the Facts in New York City, available here: http://insideairbnb.com/research/how-airbnb-hid-the-facts-in-nyc.
 
-:::
-
-test 
-
 ## 5. What ethical considerations does the use of this data raise? 
 
-::: {.duedate}
+There are a number of ethical concerns to consider when using the data: 
 
-( 18 points; Answer due {{< var assess.group-date >}} )
+-	Airbnb prohibits  data scraping in its terms and conditions (T&Cs). However, to be legally binding T&Cs require an agreement  from both parties. Logging into the website is considered as an agreement to the T&Cs. However, web scraping is an automated process without logging in and is hence considered legal.  Legalities of Airbnb API Scraping (airbtics.com)
 
-:::
+-	The data collected includes personal information, e.g.,  images and names of hosts and their homes. Hosts did not give consent for their data to be included in the Inside Airbnb Project, however one could argue, that by making their data public on Airbnb they gave up data protection rights on this information.
+  
+-	Geocoded data is especially sensitive information.Showing negative impacts of Aibnb listing while also disclosing the location of these listings, may pose a safety risk to hosts. Airbnb mitigates this risk by anonymizing listings on the map, the location is within 150 metres of the actual address. https://www.tandfonline.com/doi/full/10.1080/03098265.2018.1436534
+  
+-	As argued by post-colonial scholars, there tends to be more data and research about cities in the global north and a need to better understand spatial processes in cities of the global south, including those related to digital technologies, such as Airbnb. The Inside Airbnb Project has collected more data on cities in the Global North than cities in the Global South. Analysis using these data sets may be less suitable to describe the impact of cities in the Global South. https://www.tandfonline.com/doi/full/10.1080/0966369X.2018.1465396
+
 
 ## 6. With reference to the data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and Listing types suggest about the nature of Airbnb lets in London? 
 
