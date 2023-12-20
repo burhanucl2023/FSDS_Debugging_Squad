@@ -234,24 +234,27 @@ Written in Markdown and generated from [Quarto](https://quarto.org/). Fonts used
 
 # Coding Area
 
+
+
+
+# 6. With reference to the data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and Listing types suggest about the nature of Airbnb lets in London? 
+
 ```{python}
-# load all the libraries needed 
-import os
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-import matplotlib.pyplot as plt
+# First of all_Data cleaning
 ```
 
-# Library Packages & Read file
-
 ```{python}
+# load all the libraries needed 
 import os
 import requests
 from urllib.parse import urlparse
 import gzip
 import shutil
+import numpy as np
 import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
 
 def cache_data(src: str, dest: str) -> str:
     """
@@ -319,9 +322,9 @@ listings_df = pd.read_csv(cached_file_path)
 print('Done.')
 ```
 
+```{python}
 # Loading borough map
 
-```{python}
 import geopandas as gpd
 import matplotlib.pyplot as plt
 
@@ -340,16 +343,17 @@ print(gdf.columns)
 gdf.plot()
 ```
 
+```{python}
 # Data Cleaning
-
-## Select columns
+```
 
 ```{python}
+# View columns
 print(listings_df.columns.to_list())
 ```
 
 ```{python}
-# select the columns on host and listing type from list above that are of interested in for this question. 
+# Select the columns on host and listing type from list above that are of interested in for this question. 
 cols = ['id', 'listing_url', 'name', 'description', 
         'host_id', 'host_name', 'host_since', 'host_location',
         'host_neighbourhood','host_listings_count', 'host_total_listings_count', 'host_identity_verified',
@@ -364,29 +368,27 @@ cols = ['id', 'listing_url', 'name', 'description',
 cols.index('calculated_host_listings_count_shared_rooms') # Prints: 34
 ```
 
-## Delete previous df and create df1 with selected columns
-
 ```{python}
-# delete the df and read in again, only using the selected columns 
-del(listings_df)
+# Delete the df and read in again, only using the selected columns 
+# del(listings_df)
 listings_df1 = pd.read_csv(cached_file_path)[cols]
 print(f"Data frame is {listings_df1.shape[0]:,} x {listings_df1.shape[1]}")
 print(listings_df1.columns.to_list())
 ```
 
 ```{python}
-#identify problematic rows 
+# Identify problematic rows 
 listings_df1.isnull().sum(axis=0).sort_values(ascending=False)
 ```
 
 ```{python}
-#there are some columns with very high numbers of na. They dont seem relevant for the analysis, so we drop them. 
+# There are some columns with very high numbers of na. They dont seem relevant for the analysis, so we drop them. 
 columns_drop = ['neighbourhood_group_cleansed', 'neighbourhood', 'host_neighbourhood', 'host_location'] 
 listings_df1.drop(columns=columns_drop, inplace=True)
 ```
 
 ```{python}
-#there are a few columns that have exactly 5 na. Looks like these are not complete listings. So we drop them. 
+# There are a few columns that have exactly 5 na. Looks like these are not complete listings. So we drop them. 
 cols_na = ['host_name', 'host_since', 'host_listings_count', 'host_total_listings_count', 'host_identity_verified']
 listings_df1.dropna(subset=cols_na, inplace=True)
 ```
@@ -397,17 +399,14 @@ print(f"Data frame is now {listings_df1.shape[0]:,} x {listings_df1.shape[1]}")
 ```
 
 ```{python}
-#Just check again 
+# Just check again 
 listings_df1.isnull().sum(axis=0).sort_values(ascending=False)
 ```
 
-# Descriptive Statistics
-
-## 6.1 Price
-
-### 6.1.1 Data standardization_Price
+## 6.1 Item 'price' analysis
 
 ```{python}
+### 6.1.1 Data standardization_Price
 money = ['price']
 listings_df1.sample(5, random_state=42)[money] # Just check
 ```
@@ -460,28 +459,9 @@ listings_df1.room_type.astype('category').memory_usage(deep=True)
 listings_df1.property_type.astype('category').memory_usage(deep=True)
 ```
 
-```{python}
-#categories 
-cats = ['property_type','room_type']
-listings_df1.sample(5, random_state=42)[cats]
-```
+Item 'price' has a big influence when travellers choose the lisitng as accomodation on Airbnb.
 
-```{python}
-listings_df1[cats[0]].value_counts()
-```
-
-```{python}
-#identify the listings with unrealistically high prives 
-listings_df1.sample(5, random_state=42)[cats] 
-```
-
-## Make Plot of price (Just find something interesting_Price)
-
-```{python}
-### drop the rows with unrealistically high prices 
-
-### listings_df1 = listings_df1.drop([11248, 39139])
-```
+However, the information of 'price' on our dataset is not fully accurate. When we filtered the room rates, we found that there were many listings with prices above 1,500 per night. On the whole, there are a small number of implausibly high prices for individual units that aren't in very expensive neighbourhoods and that these are either erroneous/deliberately incorrect, or represent a price that is not per-night. We can set a special number to filter all rows which price is larger than this number.
 
 ```{python}
 ### desriptive statistics ####
@@ -498,22 +478,6 @@ print(f"The price standard deviattion is ${listings_df1.price.std():0.2f}")
 listings_df1[listings_df1['price']==80100]['listing_url']
 ```
 
-### Show a very strange thing
-
-When I just open this url, this 'price == 80100' listing shows that its price is '100' per night. Which means, there are lots of listing prices are wrong, and we can just remove them based on some resources and literatures which show the reasonable price in London.
-
-**Some resources and website:**
-
-https://www.timeout.com/london/news/airbnb-prices-in-london-are-properly-soaring-070622
-
-https://boscoin.io/the-average-price-of-an-air-bnb-in-london/
-
-https://www.airdna.co/vacation-rental-data/app/gb/london/london/overview
-
-**Conclusion: We can set a special number to filter all rows which price is larger than this number**
-
-## Convert the format of 'price'
-
 ```{python}
 # convert the column 'price'
 ints_price  = ['price']
@@ -526,119 +490,93 @@ for i in ints_price:
         df[i] = listings_df1[i].astype('float').astype(pd.UInt16Dtype())
 ```
 
-## Filter too large number in 'price'
-
 ```{python}
+# Filter too large 'price' number
 # set '2000' as special number, check and show the rows which 'price' is larger than '2000'
 count_gt_2000 = len(listings_df1[listings_df1['price'] > 2000])
 rows_gt_2000 = listings_df1[listings_df1['price'] > 2000]
-print(rows_gt_2000['price'])
 print(f"The number of row which 'price' is larger than '2000'：{count_gt_2000} rows")
+
+price_review = rows_gt_2000[rows_gt_2000['number_of_reviews_ltm']>0]
+print(price_review[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
 ```
 
-```{python}
-shit = rows_gt_2000[rows_gt_2000['number_of_reviews_ltm']>0]
-
-print(shit[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
-
-#print(rows_gt_2000[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
-```
-
-**Check another listing**
-
-Firstly, based on San F Model, we can ignore the value in columns 'number_of_reviews_ltm' is 0. Which means last 12 months (year 2023), there is no reviews, i.e no booking in these listings.
-
-We can see that 'number_of_reviews_ltm' of listing '4962' is 28. When we go to url, we found that the price is '50' now. However, the price in the csv is '6000'.
+For example, we can see that 'number_of_reviews_ltm' of listing '4962' is 28. When we go to url it shows, we found that the price is '50' now. However, the price in the csv is '6000'. (Source: 'https://www.airbnb.com/rooms/6674937') It shows it is necessary to drop 'price' is higher than '1500'. Even so, this is still a rough filter because we still can’t determine whether any of the remaining listings have incorrect prices. This also shows that Airbnb’s statistics are not accurate.
 
 ```{python}
 listings_df1.iloc[4962]['listing_url']
 ```
 
-## Plot.histogram
+```{python}
+listings_df1.drop(listings_df1[listings_df1['price'] >= 1500].index, inplace=True)
+listings_df1.shape
+```
 
 ```{python}
+### Plot.histogram ###
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 
-# Let's assume the data is normally distributed and create a sample dataset
-# as we do not have access to the actual 'listings_df1.price' data.
-# For demonstration purposes, the following data generation step will be a placeholder
-# for the actual data that the user would work with.
-
-# Generating a normally distributed sample dataset with values < 10000
-
-#listings_df1 = pd.read_csv(cached_file_path)[cols]
-
-#there are also some columns that should be numeric. Converting columns into integers.  
-
-# Plot histogram with prices less than 4000
+# Plot histogram with prices less than 1500
 plt.figure(figsize=(10, 6))
-price_histogram = listings_df1[listings_df1['price'] < 2000]['price'].plot.hist(bins=200)
+price_histogram = listings_df1[listings_df1['price'] < 1500]['price'].plot.hist(bins=200)
 plt.xlabel('Price')
 plt.ylabel('Frequency')
-plt.title('Histogram of Prices Below 1000')
+plt.title('Histogram of Prices Below 1500')
 plt.grid(True)
 plt.show()
 ```
 
-
-## Box plot
-
 ```{python}
-# 计算价格列的1%和99%分位数
+### Box plot ###
+
+# calculate the price between 5%-95%
 percentile_05 = listings_df1['price'].quantile(0.05)
 percentile_95 = listings_df1['price'].quantile(0.95)
-
-# 选择位于1%到99%分位数范围内的数据
 data = listings_df1[(listings_df1['price'] >= percentile_05) & (listings_df1['price'] <= percentile_95)]['price']
 
-# selected_data 现在包含了1%到99%分位数范围内的数据
-```
-
-```{python}
-# 创建一个新的图形
+# create a new figure
 plt.figure(figsize=(5, 8))
 
-# 创建箱线图（竖向）
-plt.boxplot(data, vert=True)  # vert=True 表示竖向箱线图
+# create a box plot()
+plt.boxplot(data, vert=True) 
 
-# 创建数据点的x坐标（沿着纵坐标排列）
+# Create the x-coordinate of the data points (arranged along the ordinate)
 #x_coordinates = np.ones(len(data))
-x_coordinates = np.random.normal(1, 0.04, size=len(data))  # 添加轻微的扰动以避免重叠
+x_coordinates = np.random.normal(1, 0.04, size=len(data))  # Add slight perturbation to avoid overlap
 
-# 添加数据点
+# add points
 plt.scatter(x_coordinates, data, color='red', marker='o', s=0.5, label='Data Points', alpha = 0.2)
 
-# 设置异常值的样式，包括标记大小和颜色
+# Set the style of outliers
 flierprops = dict(marker='o', markerfacecolor='blue', markersize=5, linestyle='none', markeredgecolor='black')
-
-# 创建箱线图（竖向），并设置须的样式和异常值的样式
 whiskerprops = {'linewidth':0.5}
 plt.boxplot(data, vert=True, whiskerprops=whiskerprops, flierprops=flierprops)
 
-# 设置X轴刻度标签
+# Set X-axis tick labels
 plt.xticks([1], ['Data'])
 
-# 显示图例
+# Show legend
 plt.legend()
 
-# 标注最小值、第一四分位数、中位数、第三四分位数和最大值的数值
+# Label values for minimum, first quartile, median, third quartile, and maximum
 plt.text(0.75, min(data), f'Minimum: {min(data):.2f}', va='bottom', ha='center')
 plt.text(0.75, np.percentile(data, 25), f'1st Quartile: {np.percentile(data, 25):.2f}', va='bottom', ha='center')
 plt.text(0.75, np.median(data), f'Median: {np.median(data):.2f}', va='bottom', ha='center')
 plt.text(0.75, np.percentile(data, 75), f'3rd Quartile: {np.percentile(data, 75):.2f}', va='bottom', ha='center')
 plt.text(0.75, max(data), f'Maximum: {max(data):.2f}', va='bottom', ha='center')
 
-# 显示图表
+# show plot
 plt.show()
 ```
 
-
-
-## Plot.scatter of price distribution
+When drawing the box plot, I selected 5%-95% of the data for analysis, in order to eliminate the impact of outliers that are too large or too small in the data. Based on the box plot and histogram, we can see that the median of the listing is 106.00, and 50% of the data is concentrated between 65.00-176.00. 
 
 ```{python}
+### Plot.scatter of price distribution ###
+
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -658,7 +596,7 @@ gdf_listings = gpd.GeoDataFrame(
 gdf_listings = gdf_listings.to_crs(gdf.crs)
 
 # define price_range
-price_ranges = [(0,50), (50,100), (100,150), (150,200), (200,250), (250,300), (300,float('inf'))]
+price_range = [(0,50), (50,100), (100,150), (150,200), (200,250), (250,300), (300,float('inf'))]
 # create a new column 'price_range', reflect prices by 'price_range' to the corresponding labels 
 listings_df1['price_range'] = pd.cut(listings_df1['price'], 
                                        bins=[0, 50, 100, 150, 200, 250, 300, float('inf')],
@@ -679,16 +617,21 @@ ax.set_title('Airbnb Listing Price Distribution in London Borough',
              fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
 plt.grid(True)
 plt.show()
-# 删除创建的price_range列
+
 #listings_df1.drop(columns=['price_range'], inplace=True)
 ```
 
+Finally, we can draw the spatial distribution map of the price of each listing per night in London. It can be seen from this that the listing prices in inner London, the more economically developed areas such as Camdon, City of London, Westminster, etc, are generally higher. While in outer London, the listing prices are generally lower. This is more in line with our general knowledge。
 
+## 6.2 "Host type" analysis
 
+"Host type" refers to whether the host of listing is a individual host or a commercial host. We identify the "host type" by the item 'calculated_host_listings_count', which means how many listings the host has on Airbnb.(https://rstudio-pubs-static.s3.amazonaws.com/407929_afc5ef0f2ad648389447a6ca3f4a7cd4.html) We define the host who has only one listing is an individual host, and those with two or more are commercial hosts.
 
-# Host type_Host中local host占总数的多少
+It is generally accepted that individual host is more likely to be a local resident, which can be called as 'local host'. Their income can be seen as contributing to the income and economy of the local population. In contrast, hosts with multiple listings are more likely to be running a business, are unlikely to be living in the property, and in violation of most short term rental laws designed to protect residential housing.(http://insideairbnb.com/london) Their incomes add very little to local economic development.
 
 ```{python}
+### Percentage of individual hosts (local hosts) in the total number of hosts ###
+
 import pandas as pd
 
 # Updated function to calculate the ratio of single listings by neighbourhood
@@ -718,17 +661,23 @@ local_host_proportion_df_gdf = gdf.merge(local_host_proportion_df, left_on='NAME
 # Plot the map
 fig, ax = plt.subplots(1, 1, figsize=(10, 10))
 local_host_proportion_df_gdf.plot(column='local_host_proportion', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white', 
-                   legend_kwds={'label': "Proportion by Borough",
+                   legend_kwds={'label': "Proportion of local host",
                                 'orientation': "vertical",
                                 'shrink': 0.7})
 # Show the plot
 plt.show()
 ```
 
-# Yicong's work of Calculating_Based on dataframe before
 
 
-# Research Question
+
+
+# 7. Drawing on your previous answers, and supporting your response with evidence (e.g. figures, maps, and statistical analysis/models), how could this data set be used to inform the regulation of Short-Term Lets (STL) in London?
+
+
+
+
+## 7.1 Research Question
 
 Airbnb claims that it contributes to dispersing tourism across the city's Boroughs in London.
 
@@ -736,7 +685,7 @@ Airbnb claims that it contributes to dispersing tourism across the city's Boroug
 
 The research question we pose is how much Airbnb contributes to tourist money being spent locally and how this compares across boroughs in London. 
 
-# Approach
+## 7.2 Approach
 
 To understand the tourist money spent locally related to Airbnb in London we will conduct the following analysis. An overview on assumptions is provided below. 
 
@@ -758,7 +707,7 @@ To understand the tourist money spent locally related to Airbnb in London we wil
 
 4.Money to local economy for each borough = sum of money to local economy for each listing in that borough / sum of listings in that borough
 
-# Overview of assumptions
+## 7.3 Overview of assumptions
 
 **1.Occupancy Rate:** 
 
@@ -785,13 +734,13 @@ Hosts with multiple listings are more likely to be running a business, are unlik
 
 For this study, inner London boroughs are the City of London, Camden, Hackney, Islington, Kensington & Chelsea, Lambeth, Southwark, Tower Hamlets, Wandsworth and Westminster. They are all in Transport zone 1 and hence well connected to the main tourist  sites. Outer London boroughs are all other boroughs.s.**
 
-# Equation
+## 7.4 Equation
 
-## 1. Money to the local economy for each listing (year 2023) = tourist local spending + income of single host (if host = local host).
+### 7.4.1 Money to the local economy for each listing (year 2023) = tourist local spending + income of single host (if host = local host).
 
-### 1.1 Income of single host =  price * occupancy rate * number of nights
+**Income of single host =  price * occupancy rate * number of nights**
 
-### **1.1.0 First of all: Find out host == local host**
+**1.1.0 First of all: Find out host == local host**
 
 Based on **Assuption 3**:
 
@@ -1082,10 +1031,7 @@ plt.show()
 ```{python}
 import pandas as pd
 import matplotlib.pyplot as plt
-
-# Since we cannot directly access the content of the image, let's assume that the dataframe is available as `df`.
-# The actual implementation would require converting the image data to a pandas DataFrame.
-# The following is a placeholder for the actual DataFrame creation process.
+import matplotlib.colors as mcolors
 
 # Sorting the DataFrame by ratio in descending order for better visual representation
 merged_sorted_df = merged_df.sort_values('contribution_per_listing', ascending=True)
@@ -1096,16 +1042,16 @@ norm = mcolors.Normalize(vmin=merged_sorted_df['contribution_per_listing'].min()
 colors = cmap(norm(merged_sorted_df['contribution_per_listing']))
 
 # Plotting the bar chart
-plt.figure(figsize=(10, 8))
-plt.barh(merged_sorted_df['neighbourhood_cleansed'], merged_sorted_df['contribution_per_listing'], color = colors)
-plt.xlabel('contribution_per_listing', fontsize = 12)
-plt.ylabel('Neighbourhood', fontsize = 12)
-plt.title('Economic Contribution in London Boroughs (per listing)', fontsize = 20)
+fig, ax = plt.subplots(figsize=(10, 8))  # create a fig object and an ax object
+ax.barh(merged_sorted_df['neighbourhood_cleansed'], merged_sorted_df['contribution_per_listing'], color=colors)
+ax.set_xlabel('Contribution per Listing', fontsize=12)
+ax.set_ylabel('Neighbourhood', fontsize=12)
+ax.set_title('Economic Contribution in London Boroughs (per listing)', fontsize=20)
 
-# Create a color string
+# Create a colorbar
 sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
-sm.set_array([])  # Just show the color string
-plt.colorbar(sm)
+sm.set_array([])  # Just to show the colorbar
+cbar = plt.colorbar(sm, ax=ax)  # define prarmeter of ax
 
 plt.tight_layout()
 plt.show()
@@ -1170,3 +1116,7 @@ merged_occupancy_gdf.plot(column='avarage_occupancy_day', ax=ax, legend=True, cm
 # Show the plot
 plt.show()
 ```
+
+
+
+
