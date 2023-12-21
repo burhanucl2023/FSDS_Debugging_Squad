@@ -1,0 +1,1000 @@
+---
+bibliography: bib1.bib
+csl: harvard-cite-them-right.csl
+title: Group Debugging Squad
+execute:
+  echo: false
+format:
+  html:
+    theme:
+      - minty
+      - css/web.scss
+    code-copy: true
+    code-link: true
+    toc: true
+    toc-title: On this page
+    toc-depth: 2
+    toc_float:
+      collapsed: false
+      smooth_scroll: true
+  pdf:
+    include-in-header:
+      text: |
+        \addtokomafont{disposition}{\rmfamily}
+    mainfont: Spectral
+    sansfont: Roboto
+    monofont: JetBrainsMono-Regular
+    papersize: a4
+    geometry:
+      - top=25mm
+      - left=40mm
+      - right=30mm
+      - bottom=25mm
+      - heightrounded
+    toc: false
+    number-sections: false
+    colorlinks: true
+    highlight-style: github
+jupyter:
+  jupytext:
+    text_representation:
+      extension: .qmd
+      format_name: quarto
+      format_version: '1.0'
+      jupytext_version: 1.15.2
+  kernelspec:
+    display_name: Python 3 (ipykernel)
+    language: python
+    name: python3
+---
+
+---
+title: Group Debugging Squad_Submission
+format: pdf
+execute:
+  echo: false
+---
+
+## Declaration of Authorship {.unnumbered .unlisted}
+
+We, [The Debugging Squad], confirm that the work presented in this assessment is our own. Where information has been derived from other sources, we confirm that this has been indicated in the work. Where a Large Language Model such as ChatGPT has been used we confirm that we have made its contribution to the final submission clear.
+
+Date: 21.December 2023 
+
+Student Numbers: 
+1. Viktoria Pues (23116898)
+2. Yicong Li (23219797)
+3. Victoria chen (23233478)
+
+## Brief Group Reflection
+
+| What Went Well | What Was Challenging |
+| -------------- | -------------------- |
+| Working with the coding environment despite limited experience             | Conceptualising question 7                     |
+|   Splitting the work         | Time management in small group                 |
+
+## Priorities for Feedback
+
+Are there any areas on which you would appreciate more detailed feedback if we're able to offer it?
+
+- Structuring the cleaning of data
+- Extend of policy recommendations (enough detail)
+- Enough detail on the model and limitations. would this model work in a real life consultancy project?
+
+```{=html}
+<style type="text/css">
+.duedate {
+  border: dotted 2px red; 
+  background-color: rgb(255, 235, 235);
+  height: 50px;
+  line-height: 50px;
+  margin-left: 40px;
+  margin-right: 40px
+  margin-top: 10px;
+  margin-bottom: 10px;
+  color: rgb(150,100,100);
+  text-align: center;
+}
+</style>
+```
+
+{{< pagebreak >}}
+
+# Response to Questions
+
+## 1. Who collected the data?
+
+The data on the Inside Airbnb website was collected by the Inside Airbnb Project team, which is led by Murray Cox, an artist, activist and technologist [@insideairbnb]. 
+
+## 2. Why did they collect it?
+
+Airbnb is a company providing a peer to peer platform for short-term rental (STR) accommodations in cities around the world with over 4 million active hosts [@airbnb]. 
+
+As outlined in its data policies, Inside Airbnb has two objectives :  
+
+1.	Make data on Airbnb listings available for analysis and to quantify the impact of STR on local communities.
+    
+3.	Provide a platform for community members, researchers, activists and policy makers to advocate for policies that mitigate Airbnb's negative impacts on local communities. [@insideairbnb]
+
+## 3. How was the data collected?  
+
+Inside Airbnb's data was collected through webscraping. Data on individual listings is extracted from the Airbnb website for different cities. Inside Airbnb has collected data for 92 cities in Europe and North America and 21 cities in Asia and the Pacific, Africa, South America. For each listing, a range of data points is collected including on the host, location, property/room type, price, stay, and reviews. The collected data is verified, cleaned, analysed and aggregated by the project team and stored in seperate csv files for each city, which are available to download.  To remain uptodate, the process of webscraping is usually repeated four times a year. So, there a four data sets per city per year. [@insideairbnb] 
+
+## 4. How does the method of collection impact the completeness and/or accuracy of its representation of the process it seeks to study, and what wider issues does this raise?
+
+The datasets show a snapshot of listings available at a particular time. The Airbnb website is changing continuously as users add, delete or change listings. As illustrated by @Murray2016, the website can dramatically change from one day to the next. In 2015, Airbnb published data on their operation in New York using a snapshot of November 17, 2015. The data was misleading as they did not show that a  targeted purge of more than 1,000 listings was implemented just before that date. In order to accurately study the impact of Airbnb on local communities, comparing data over time would be beneficial. 
+
+## 5. What ethical considerations does the use of this data raise? 
+
+There are a number of ethical concerns to consider when using the data: 
+
+-	Airbnb prohibits  data scraping in its terms and conditions (T&Cs). However, for T&Cs to be binding, they require an agreement from both parties. Logging into the website is considered as agreement. However, as web scraping is an automated process without logging in, it is considered legal in this case.  [@airbtics] 
+
+-	The data includes personal information, e.g.,  images and names of hosts and their homes. Hosts did not give consent for their data to be included in the Inside Airbnb Project, however one could argue, that by making their data public on Airbnb, they gave up data protection rights on this information.
+  
+-	Geocoded data is especially sensitive information.[@Bemt:2018] Disclosing the location of homes, could pose a safety risk to hosts. Airbnb mitigates this risk by anonymizing listings on the map. The location is within 150 metres of the actual address. 
+  
+-	Post-colonial scholars argue that we need to better understand spatial processes in cities of the global south, including those related to digital technologies, such as Airbnb.[@Elwood:2018] Cities in the Global South are underrepresented on Inside Airbnb (see above) and correstonding analysis may have a Global North bias. 
+
+## 6. With reference to the data (*i.e.* using numbers, figures, maps, and descriptive statistics), what does an analysis of Hosts and Listing types suggest about the nature of Airbnb lets in London? 
+
+To describe the nature of Airbnb lets in London, we analysed hosts and listing types, looking more closely at occupancy rate of listings following a preliminary data cleaning process including selection of relevant columns, filtering of probelmatic rows, and fixing of column types.
+
+```{python}
+# First of all_Data cleaning
+```
+
+```{python}
+# load all the libraries needed 
+import os
+import requests
+from urllib.parse import urlparse
+import gzip
+import shutil
+import numpy as np
+import pandas as pd
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import warnings
+
+warnings.simplefilter(action='ignore', category=pd.errors.DtypeWarning)
+
+def cache_data(src: str, dest: str) -> str:
+    """
+       
+    Downloads and caches a remote file locally.
+    
+    The function sits between the 'read' step of a pandas or geopandas
+    data frame and downloading the file from a remote location. The idea
+    is that it will save it locally so that you don't need to remember to
+    do so yourself. Subsequent re-reads of the file will return instantly
+    rather than downloading the entire file for a second or n-th itme.
+
+    We've built in some basic logic around looking at the extension of the 
+    destination file and converting it accordingly *once* it is downloaded.
+    
+    Parameters
+    ----------
+    src : str
+        The remote *source* for the file, any valid URL should work.
+    dest : str
+        The *destination* location to save the downloaded file.
+        
+    Returns
+    -------
+    str
+        A string representing the local location of the file.
+
+        
+    """
+    
+    url = urlparse(src)
+    fn = os.path.split(url.path)[-1]
+    dfn = os.path.join(dest, fn)
+
+    if not os.path.isfile(dfn):
+        #print(f"{dfn} not found, downloading!")
+
+        path = os.path.split(dest)
+
+        if len(path) >= 1 and path[0] != '':
+            os.makedirs(os.path.join(*path), exist_ok=True)
+
+        with open(dfn, "wb") as file:
+            response = requests.get(src, stream=True)
+            shutil.copyfileobj(response.raw, file)
+
+        #print("\tDone downloading...")
+
+    #else:
+        #print(f"Found {dfn} locally!")
+
+    return dfn
+
+# Define the destination directory and source path
+ddir = os.path.join('data', 'listings')  # destination directory
+spath = 'http://data.insideairbnb.com/united-kingdom/england/london/2023-09-06/data/listings.csv.gz'  # source path
+
+# Use the cache_data function to download and cache the file
+cached_file_path = cache_data(spath, ddir)
+
+# Read the cached file into a pandas DataFrame
+listings_df = pd.read_csv(cached_file_path)
+
+# Now 'listings_df' contains the DataFrame with the data from the cached CSV file
+#print('Done.')
+```
+
+```{python}
+# Loading borough map
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+
+# Load the London borough boundary shapefile
+# gdf = gpd.read_file("C:/Users/avb19/Documents/CASA/FSDS/FSDS_Debugging_Squad/ESRI/London_Borough_Excluding_MHW.shp")
+
+ddir  = os.path.join('data','geo') # destination directory
+spath = 'https://github.com/jreades/fsds/blob/master/data/src/' # source path
+
+gdf = gpd.read_file( cache_data(spath+'Boroughs.gpkg?raw=true', ddir) )
+
+#print(gdf.crs)
+#print(gdf.head())
+#print(gdf.columns)
+#gdf.plot()
+```
+
+```{python}
+# Data Cleaning
+```
+
+```{python}
+# View columns
+#print(listings_df.columns.to_list())
+```
+
+```{python}
+# Select the columns on host and listing type from list above that are of interested in for this question. 
+cols = ['id', 'listing_url', 'name', 'description', 
+        'host_id', 'host_name', 'host_since', 'host_location',
+        'host_neighbourhood','host_listings_count', 'host_total_listings_count', 'host_identity_verified',
+        'neighbourhood', 'neighbourhood_cleansed', 'neighbourhood_group_cleansed',
+        'latitude', 'longitude',
+        'property_type', 'room_type', 'accommodates', 'bedrooms', 'beds',
+        'price', 'minimum_nights', 'maximum_nights', 'minimum_minimum_nights', 'maximum_minimum_nights', 
+        'number_of_reviews', 'number_of_reviews_ltm', 'number_of_reviews_l30d', 'reviews_per_month',
+        'calculated_host_listings_count', 'calculated_host_listings_count_entire_homes', 'calculated_host_listings_count_private_rooms', 'calculated_host_listings_count_shared_rooms']
+
+#print(df_2023_Season4_SC.head()) # Just check
+#cols.index('calculated_host_listings_count_shared_rooms') # Prints: 34
+```
+
+```{python}
+# Delete the df and read in again, only using the selected columns 
+# del(listings_df)
+listings_df1 = pd.read_csv(cached_file_path)[cols]
+#print(f"Data frame is {listings_df1.shape[0]:,} x {listings_df1.shape[1]}")
+#print(listings_df1.columns.to_list())
+```
+
+```{python}
+# Identify problematic rows 
+#listings_df1.isnull().sum(axis=0).sort_values(ascending=False)
+```
+
+```{python}
+# There are some columns with very high numbers of na. They dont seem relevant for the analysis, so we drop them. 
+columns_drop = ['neighbourhood_group_cleansed', 'neighbourhood', 'host_neighbourhood', 'host_location'] 
+listings_df1.drop(columns=columns_drop, inplace=True)
+```
+
+```{python}
+# There are a few columns that have exactly 5 na. Looks like these are not complete listings. So we drop them. 
+cols_na = ['host_name', 'host_since', 'host_listings_count', 'host_total_listings_count', 'host_identity_verified']
+listings_df1.dropna(subset=cols_na, inplace=True)
+```
+
+```{python}
+#print(f"Data frame is now {listings_df1.shape[0]:,} x {listings_df1.shape[1]}") # Prints: Data frame is now 87,941 x 30
+```
+
+```{python}
+# Just check again 
+#listings_df1.isnull().sum(axis=0).sort_values(ascending=False)
+```
+
+### 6.1 Price analysis
+
+```{python}
+### 6.1.1 Data standardization_Price
+money = ['price']
+#listings_df1.sample(5, random_state=42)[money] # Just check
+```
+
+```{python}
+# The 'price' column has a dollar sign and comma, need to drop comma and dollar sign  
+for m in money:
+    #print(f"Converting {m}")
+    listings_df1[m] = listings_df1[m].str.replace('$','', regex=False).str.replace(',','', regex=False).astype('float')
+```
+
+```{python}
+# Check it worked 
+#listings_df1.sample(5, random_state=42)[money]
+```
+
+```{python}
+# Check for extremes 
+#listings_df1[listings_df1['price'] == 0]
+```
+
+```{python}
+#delete the ones where price is 0 
+listings_df1=listings_df1[listings_df1['price'] != 0]
+```
+
+```{python}
+# Just check agian
+#print(f"Data frame is now {listings_df1.shape[0]:,} x {listings_df1.shape[1]}") # Prints: Data frame is now 87,938 x 30
+```
+
+```{python}
+# There are also some columns that should be numeric. Converting columns into integers.  
+
+import pandas as pd
+
+ints = [
+    'id', 'host_id', 'host_listings_count', 'host_total_listings_count',
+    'minimum_nights', 'maximum_nights', 'minimum_minimum_nights',
+    'maximum_minimum_nights'
+]
+
+for i in ints:
+    #print(f"Converting {i}")
+    try:
+        # Fill NaN values with a placeholder and convert to integers.
+        listings_df1[i] = listings_df1[i].astype('float').fillna(-1).astype('int')
+    except ValueError as e:
+        print("  - Error converting to integer, filling NaN with placeholder and converting to unsigned 16-bit integer.")
+        # Correct the variable name to listings_df1
+        listings_df1[i] = listings_df1[i].astype('float').fillna(0).astype(pd.UInt16Dtype())
+
+# Replace the placeholder with NaN if needed
+for i in ints:
+    listings_df1[i] = listings_df1[i].replace(-1, pd.NA)
+```
+
+```{python}
+# room_type, make boolean
+# property_type, make boolean
+listings_df1.room_type.astype('category').memory_usage(deep=True) 
+pass
+```
+
+```{python}
+listings_df1.property_type.astype('category').memory_usage(deep=True)
+pass
+```
+
+The data set shows discrepancies related to prices with numerous listings having unrealistically high prices. To avoid a skewed result towards higher prices, we excluded prices over 1500 GBP for the analyisis. A more thorough analysis of higher end price listing, e.g. by assessing the reviews, would allow to increase the accuracy of results but is beyond the scope of this project.
+
+The histogram in figure 1 displays the price distribution, revealing a positive skew towards lower prices with a sparse tail of higher-priced listings. The accompanying box plot in figure 2 provides key descriptive statistics, including the median listing price at 106.00, with 50% of the data falling within the range of 65.00 to 176.00. 
+
+```{python}
+### desriptive statistics ####
+
+# The mean and median price of airbnb in London is. 
+#print(f"The mean price is ${listings_df1.price.mean():0.2f}") # Prints: The mean price is $181.36
+#print(f"The median price is ${listings_df1.price.median():0.2f}") # Prints: The median price is $110.00
+#print(f"The min price is ${listings_df1.price.min():0.2f}") # Prints: The min price is $1.00
+#print(f"The max price is ${listings_df1.price.max():0.2f}") # Prints: The max price is $80100.00
+#print(f"The price standard deviattion is ${listings_df1.price.std():0.2f}") # Prints: The price standard deviattion is $486.19
+```
+
+```{python}
+#listings_df1[listings_df1['price']==80100]['listing_url']
+```
+
+```{python}
+# convert the column 'price'
+ints_price  = ['price']
+for i in ints_price:
+    #print(f"Converting {i}")
+    try:
+        listings_df1[i] = listings_df1[i].astype('float').astype('int')
+    except ValueError as e:
+        print("  - !!!Converting to unsigned 16-bit integer!!!")
+        df[i] = listings_df1[i].astype('float').astype(pd.UInt16Dtype())
+```
+
+```{python}
+# Filter too large 'price' number
+# set '2000' as special number, check and show the rows which 'price' is larger than '2000'
+count_gt_2000 = len(listings_df1[listings_df1['price'] > 2000])
+rows_gt_2000 = listings_df1[listings_df1['price'] > 2000]
+#print(f"The number of row which 'price' is larger than '2000'：{count_gt_2000} rows")
+
+#price_review = rows_gt_2000[rows_gt_2000['number_of_reviews_ltm']>0]
+#print(price_review[['price', 'number_of_reviews_ltm', 'property_type', 'room_type']])
+```
+
+```{python}
+#listings_df1.iloc[4962]['listing_url']
+```
+
+```{python}
+listings_df1.drop(listings_df1[listings_df1['price'] >= 1500].index, inplace=True)
+#listings_df1.shape
+```
+
+```{python}
+### Plot.histogram ###
+
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+# Plot histogram with prices less than 1500
+plt.figure(figsize=(10, 6))
+price_histogram = listings_df1[listings_df1['price'] < 1500]['price'].plot.hist(bins=200)
+plt.xlabel('Price')
+plt.ylabel('Frequency')
+plt.title('Histogram of Prices Below 1500')
+plt.grid(True)
+plt.show()
+```
+
+### **Figure 1 - Historgram Price**
+
+```{python}
+### Box plot ###
+
+# calculate the price between 5%-95%
+percentile_05 = listings_df1['price'].quantile(0.05)
+percentile_95 = listings_df1['price'].quantile(0.95)
+data = listings_df1[(listings_df1['price'] >= percentile_05) & (listings_df1['price'] <= percentile_95)]['price']
+
+# create a new figure
+plt.figure(figsize=(5, 8))
+
+# create a box plot()
+plt.boxplot(data, vert=True) 
+
+# Create the x-coordinate of the data points (arranged along the ordinate)
+#x_coordinates = np.ones(len(data))
+x_coordinates = np.random.normal(1, 0.04, size=len(data))  # Add slight perturbation to avoid overlap
+
+# add points
+plt.scatter(x_coordinates, data, color='red', marker='o', s=0.5, label='Data Points', alpha = 0.2)
+
+# Set the style of outliers
+flierprops = dict(marker='o', markerfacecolor='blue', markersize=5, linestyle='none', markeredgecolor='black')
+whiskerprops = {'linewidth':0.5}
+plt.boxplot(data, vert=True, whiskerprops=whiskerprops, flierprops=flierprops)
+
+# Set X-axis tick labels
+plt.xticks([1], ['Data'])
+
+# Show legend
+plt.legend()
+
+# Label values for minimum, first quartile, median, third quartile, and maximum
+plt.text(0.75, min(data), f'Minimum: {min(data):.2f}', va='bottom', ha='center')
+plt.text(0.75, np.percentile(data, 25), f'1st Quartile: {np.percentile(data, 25):.2f}', va='bottom', ha='center')
+plt.text(0.75, np.median(data), f'Median: {np.median(data):.2f}', va='bottom', ha='center')
+plt.text(0.75, np.percentile(data, 75), f'3rd Quartile: {np.percentile(data, 75):.2f}', va='bottom', ha='center')
+plt.text(0.75, max(data), f'Maximum: {max(data):.2f}', va='bottom', ha='center')
+
+# show plot
+plt.show()
+```
+
+### **Figure 2 - Box Plot Price**
+
+```{python}
+### Plot.scatter of price distribution ###
+
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import pandas as pd
+import pysal as p
+import mapclassify as mc
+import palettable.matplotlib as palmpl
+from legendgram import legendgram
+
+# define price_range
+price_ranges = [(0,50), (50,100), (100,150), (150,200), (200,250), (250,300), (300,float('inf'))]
+
+# create a new column 'price_range', reflect prices by 'price_range' to the corresponding labels 
+listings_df1['price_range'] = pd.cut(listings_df1['price'], 
+                                       bins=[0, 50, 100, 150, 200, 250, 300, float('inf')],
+                                       labels=['(0, 50)', '(50, 100)', '(100, 150)', '(150, 200)', '(200, 250)', '(250, 300)', '300+'],
+                                       right=False)
+
+# If your gdf is not in WGS 84 (latitude/longitude), and your listings_df1 data is in WGS 84, you need to convert it.
+# Ensure listings data is in a GeoDataFrame with the correct CRS.
+gdf_listings = gpd.GeoDataFrame(
+    listings_df1,
+    geometry=gpd.points_from_xy(listings_df1.longitude, listings_df1.latitude),
+    crs="EPSG:4326"  # WGS 84
+)
+# Now convert the listings GeoDataFrame to match the CRS of the borough boundaries GeoDataFrame.
+gdf_listings = gdf_listings.to_crs(gdf.crs)
+
+# Now we can plot both on the same Axes object.
+fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+# Set the color of the boroughs.
+gdf.plot(ax=ax, color='none', edgecolor='black', facecolor='black', linewidth=1.5)  
+gdf_listings.plot(ax=ax, column='price_range', cmap='RdBu_r', legend=True, 
+                 marker='.', markersize=3, zorder=4)
+
+# Set axis labels and title using a specified font, weight, and size
+ax.set_xlabel('Easting', fontsize=15)
+ax.set_ylabel('Northing', fontsize=15)
+ax.set_title('Airbnb Listing Price Distribution in London Borough', 
+             fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
+plt.grid(True)
+plt.show()
+
+#listings_df1.drop(columns=['price_range'], inplace=True)
+```
+
+### **Figure 3 - Scatter plot price**
+
+The spatial distribution map in figure 3 shows that there are higer number of listings with higher prices in inner city London. 
+
+### 6.2 "Host type" analysis
+
+"Host type" refers to whether the host has one or multiple listings. We assume that those with multiple listings are commercial hosts, which is in contrast to the intended peer to peer character of Airbnb. 
+
+```{python}
+### Percentage of individual hosts (local hosts) in the total number of hosts ###
+
+import pandas as pd
+
+# Updated function to calculate the ratio of single listings by neighbourhood
+def calculate_host_type(group):
+    # Calculate the count of single listings
+    single_listings_count = (group['calculated_host_listings_count'] == 1).sum()
+    # Calculate the ratio of single listings
+    local_host_proportion = single_listings_count / len(group)
+    # Return the ratio with the neighbourhood name
+    return pd.Series({'local_host_proportion': local_host_proportion})
+
+# Group by neighbourhood and apply the calculation, then reset index
+local_host_proportion_df = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_host_type).reset_index()
+
+# Display the resulting DataFrame
+#local_host_proportion_df
+```
+
+```{python}
+import matplotlib.pyplot as plt
+import geopandas as gpd
+
+# Merge your data with the GeoDataFrame
+# Make sure the left and right column names are correct
+local_host_proportion_df_gdf = gdf.merge(local_host_proportion_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+local_host_proportion_df_gdf.plot(column='local_host_proportion', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white', 
+                   legend_kwds={'label': "Proportion of local host",
+                                'orientation': "vertical",
+                                'shrink': 0.7})
+
+# Set axis labels and title using a specified font, weight, and size
+ax.set_xlabel('Easting', fontsize=15)
+ax.set_ylabel('Northing', fontsize=15)
+ax.set_title('Proportion of local host in London Borough', 
+             fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
+
+# Show the plot
+plt.show()
+```
+
+### **Figure 4 - Local hosts**
+
+Figure 3 shows that there are more single hosts in outer London boroughs than inner London boroughs, such as Camden, Westminster, city of London and Kensington and Chelsea. 
+
+## 6.3 "Occupancy" analysis
+
+Occupancy of a listing is the number of nights an Airbnb was booked per year. The occupancy rate is calculated as a function of the number if reviews in the last 12 months (assuming a 50% review rate) and the minimun number of nights requried to book following the San Fransico Model from Inside Airbnb analysis. [@insideairbnb]
+
+```{python}
+import pandas as pd
+
+# calculate the occupancy day in 2023 year
+def calculate_occupancy(df):
+    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
+    df['occupancy'] = df['occupancy_rate'] * df['minimum_nights']
+    return df['occupancy'].sum()
+
+# use groupby() divide into boroughs and apply calculate_occupancy() function
+occupancy_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_occupancy)
+
+# Convert the result to a DataFrame with the correct column name.
+occupancy_by_borough_df = occupancy_by_borough.reset_index(name='occupancy')
+
+#print(type(occupancy_by_borough_df))
+#occupancy_by_borough_df
+```
+
+```{python}
+### Dataframe 'neighborhood_counts' ###
+
+import pandas as pd
+
+# use groupby() & size() to calculate rows number which is realted to each variables
+neighborhood_counts = listings_df1.groupby('neighbourhood_cleansed').size().reset_index(name='total_listings')
+
+# print(type(neighborhood_counts)) # Prints:<class 'pandas.core.frame.DataFrame'>
+# neighborhood_counts
+```
+
+```{python}
+import pandas as pd
+
+# Merging the dataframes on 'neighbourhood_cleansed'
+merged_occupancy_df = occupancy_by_borough_df.merge(neighborhood_counts, on='neighbourhood_cleansed')
+merged_occupancy_df['avarage_occupancy_day'] = merged_occupancy_df['occupancy'] / merged_occupancy_df['total_listings']
+
+#merged_occupancy_df
+```
+
+```{python}
+# Make a Map
+
+# Merge your data with the GeoDataFrame
+merged_occupancy_gdf = gdf.merge(merged_occupancy_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Plot the map
+fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+merged_occupancy_gdf.plot(column='avarage_occupancy_day', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
+                legend_kwds={'label': "Avarage Occupancy Day",
+                             'orientation': "vertical", 
+                             'shrink': 0.7})
+
+# Set axis labels and title using a specified font, weight, and size
+ax.set_xlabel('Easting', fontsize=15)
+ax.set_ylabel('Northing', fontsize=15)
+ax.set_title('Avarage Occupancy Day in London Borough', 
+             fontdict={'fontsize':'20', 'fontweight':'3'})  #provide a title
+
+# Show the plot
+plt.show()
+```
+
+### Figure 5 - Occupancy rate {style="text-align:center; font-weight:bold; font-size:largest"}
+
+
+
+
+The occupancy map in figure 4 reveals that central London boroughs have higher occupancies than outer London borough, especially in touristy areas such as Westminster or Camden. The highest occupancy rates are seen in Kingston upon Themes. To understand this result fully, further analysis, e.g. assessing local tourist attraction and major events, would be needed.
+
+
+
+## 7. Drawing on your previous answers, and supporting your response with evidence, how could this data set be used to inform the regulation of STL in London?
+
+## 7.1 Regulation of short-term lets
+
+Short-Term lets’ rising popularity has raised many concerns about traditional lodging industries and neighbourhood housing markets. The 90-day rule is brought up in 2015 in response to this worry to restrict the total full occupancy period of STL properties to 90 days per year. [@Shabrina:2019] 
+
+## 7.2 Research
+
+### 7.2.1 Research Question
+
+Airbnb claims that it contributes to dispersing tourism across the London boroughs, as well as returns to the local communities with up to 97% what they charge and revitalisation of local tourism economies. [@Airbnb2019]
+
+Our research question is: Do Airbnb's listings contribute to local tourism economy equally in inner and outer London boroughs?
+
+### 7.2.2 Approach
+
+1. To assess tourist expenditure that benefits the local community (local economic contribution), we assume that it comes from "money paid to the local host" and "money spent in local business"
+
+**income of local host =  price * occupancy rate * number of nights**
+
+**tourist local spending =  occupancy rate * number of nights * number of people * daily consumption**
+
+"daily consumption": Based on the GLA's Tourism Forcasts [@touristforecast2022], the average visitor spending per day in London is 120 GBP in 2022. As subtracting accommodation, trasnport and tourist spending, we assume "daily local consumption" will be around 30 GBP or 25% of the total daily spending, which includes breakfast, some dinner and grocery shopping.
+
+2. Calculating the economic contribution per listing in each London Borough
+
+**Money of local economic contribution per listing = sum of money / number of listings per borough**
+
+3. Producing a map of London that allows comparison between the boroughs.
+
+### 7.2.3 Equation and Process
+
+**1. Money to the local economy for each listing = tourist local spending + income of local host**
+
+**2. Income of single host =  price * occupancy rate * number of nights for singel host's listings**
+
+*(1) occupancy rate = review/(50%) based on 'San Francisco Model'*
+
+*(2) number of nights (per booking): use "minimum_nights"*
+
+```{python}
+import pandas as pd
+pd.options.mode.chained_assignment=None # default='warn'
+```
+
+```{python}
+listings_df1_localhost = listings_df1[listings_df1['calculated_host_listings_count'] == 1]
+```
+
+```{python}
+#listings_df1.shape
+```
+
+```{python}
+#listings_df1_localhost.shape
+# This means almost half of host have multiple listings, 
+# which means half of hosts won't have economic contribution to this community/borough.
+# This result is similar with the outcome from **Inside Airbnb**. 
+# It shows **43,382 (49.3%) single listings** and **44,565 (50.7%) multi-listings
+```
+
+```{python}
+### Price ###
+
+#Just check
+#listings_df1_localhost.sample(5, random_state=42)[money]
+```
+
+```{python}
+# Check 'NA'
+#listings_df1_localhost[listings_df1_localhost.listing_url.isna()][['id','listing_url','name','description','host_id','host_name','price']]
+# No 'NA'
+```
+
+```{python}
+# Just check again 
+#listings_df1_localhost.isnull().sum(axis=0).sort_values(ascending=False)[:20]
+```
+
+```{python}
+# NAN of rows
+#listings_df1_localhost.isnull().sum(axis=1).sort_values(ascending=False).head(10)
+```
+
+```{python}
+### occupancy rate ###
+
+listings_df1_localhost.loc[:, 'occupancy_rate'] = listings_df1_localhost['number_of_reviews_ltm'] / 12 * 3 / 0.50
+#print(listings_df1_localhost['occupancy_rate'])
+
+#print(listings_df1_localhost[['occupancy_rate']].sort_values(by='occupancy_rate', ascending=False)) # Prints: [43380 rows x 1 columns]
+
+# print(listings_df1_localhost[listings_df1['occupancy_rate'] == 0])
+#listings_df1_localhost[listings_df1_localhost['occupancy_rate'] == 0].shape # Prints: (25607, 36) 
+
+# Which means (actually the whole 2023 year) almost half of listings don't be used
+
+# There are 43380 listings in dataframe. However, there are 256078 rows which value of 'occupancy_rate' is 0.0. Which means these listings didn't get any review in 2023 year. 
+# Based on San F Model, it means almost half of listings don't be used in 2023 year.
+```
+
+```{python}
+# create a new column "host_income"
+listings_df1_localhost.loc[:, 'host_income'] = (
+    listings_df1_localhost['price'] *
+    listings_df1_localhost['occupancy_rate'] *
+    listings_df1_localhost['minimum_nights']
+)
+
+# Sum it up to calculate total income
+host_income_quarter = listings_df1_localhost['host_income'].sum()
+
+# Print the result with formatted string
+#print(f"The host income for the quarter: ${host_income_quarter:.2f}")
+```
+
+**3. Tourist local spending =  occupancy rate * number of nights * number of people * 30GBP**
+
+*(1) 'occupancy rate' and 'number of nights': When we use Equation1, we filter the hosts who have multiple listings. However, tourists contribute to the local economy whether they are staying in the listings which belong to local host or a non-local host. So we use listings_df1.*
+
+*(2) number of nights (per booking): We use column 'minimum_nights'*
+
+*(3) number of people: It means number of tourist per listing. We consider 'accommodates' is equal to accommodates.*
+
+*(4) We use 30 GBP temporarily.*
+
+*(5) Calculate 'tourist local spending'*
+
+(We need some literatures to support 30 GBP)
+
+```{python}
+### "occupancy_rate" in listings_df1 ###
+
+listings_df1['occupancy_rate'] = listings_df1['number_of_reviews_ltm'] / 12 * 3 / 0.50
+#print(listings_df1['occupancy_rate'])
+
+#print(listings_df1[['occupancy_rate']].sort_values(by='occupancy_rate', ascending=False)) # Prints: [87941 rows x 1 columns]
+
+# print(listings_df1[listings_df1['occupancy_rate'] == 0])
+#listings_df1[listings_df1['occupancy_rate'] == 0].shape 
+# Prints: (43248, 36) 
+# Which means (actually the whole 2023 year) almost half of listings don't be used
+```
+
+```{python}
+### Calculate "tourist local spending" ###
+
+# create a new column "tourist local spending"
+listings_df1['tourist_local_spending'] = listings_df1['occupancy_rate'] * listings_df1['minimum_nights'] * listings_df1['accommodates'] * 30
+
+# sum it up
+tourist_local_spending_quarter = listings_df1['tourist_local_spending'].sum()
+
+#print(f"The host income for the quarter: ${tourist_local_spending_quarter:.2f}")
+```
+
+**4. Group by boroughs and calculate economic eontribution in each London borough per listing**
+
+```{python}
+### Dataframe 'income_by_borough_df' ###
+
+import pandas as pd
+
+# define function calculate_host_income
+def calculate_host_income(df):
+    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
+    df['host_income'] = df['price'] * df['occupancy_rate'] * df['minimum_nights']
+    return df['host_income'].sum()
+
+# group by boroughs
+income_by_borough = listings_df1_localhost.groupby('neighbourhood_cleansed').apply(calculate_host_income)
+
+# Convert the result to a DataFrame with the correct column name.
+income_by_borough_df = income_by_borough.reset_index(name='income_by_borough')
+
+# print(type(income_by_borough_df)) # Prints: <class 'pandas.core.frame.DataFrame'>
+# income_by_borough_df
+```
+
+```{python}
+### Dataframe 'spending_by_borough_df' ###
+
+import pandas as pd
+
+# define function tourist_local_spending
+def calculate_tourist_local_spending(df):
+    df['occupancy_rate'] = df['number_of_reviews_ltm'] / 12 * 3 / 0.50
+    df['tourist_local_spending'] = df['occupancy_rate'] * df['minimum_nights'] * df['accommodates'] * 30
+    return df['tourist_local_spending'].sum()
+
+# group by boroughs
+spending_by_borough = listings_df1.groupby('neighbourhood_cleansed').apply(calculate_tourist_local_spending)
+
+# Convert the result to a DataFrame with the correct column name.
+spending_by_borough_df = spending_by_borough.reset_index(name='spending_by_borough')
+
+# print(type(spending_by_borough_df)) # Prints: <class 'pandas.core.frame.DataFrame'>
+# spending_by_borough_df
+```
+
+```{python}
+### Dataframe 'neighborhood_counts' ###
+
+import pandas as pd
+
+# use groupby() & size() to calculate rows number which is realted to each variables
+neighborhood_counts = listings_df1.groupby('neighbourhood_cleansed').size().reset_index(name='total_listings')
+
+# print(type(neighborhood_counts)) # Prints:<class 'pandas.core.frame.DataFrame'>
+# neighborhood_counts
+```
+
+```{python}
+### Merge these Dataframes all together ###
+
+import pandas as pd
+
+# Merging the dataframes on 'neighbourhood_cleansed'
+merged_df = income_by_borough_df.merge(spending_by_borough_df, on='neighbourhood_cleansed')
+merged_df = merged_df.merge(neighborhood_counts, on='neighbourhood_cleansed')
+merged_df['contribution_per_listing'] = (merged_df['income_by_borough'] + merged_df['spending_by_borough']) / merged_df['total_listings']
+
+#merged_df
+```
+
+```{python}
+### Draw the map ###
+
+import matplotlib.pyplot as plt
+import geopandas as gpd
+
+# Assuming 'gdf' is your GeoDataFrame with the London borough boundaries
+# and 'merged_df' is your DataFrame with the 'ratio' column.
+
+# Merging the GeoDataFrame with your data
+merged_gdf = gdf.merge(merged_df, left_on='NAME', right_on='neighbourhood_cleansed')
+
+# Creating the plot
+fig, ax = plt.subplots(1, 1, figsize=(15, 15))
+merged_gdf.plot(column='contribution_per_listing', ax=ax, legend=True, cmap='RdBu_r', edgecolor='white',
+                legend_kwds={'label': "Contribution by Borough",
+                             'orientation': "vertical", 
+                             'shrink': 0.7})
+
+# Adding the borough names to the plot
+for idx, row in merged_gdf.iterrows():
+    plt.annotate(text=row['NAME'], xy=(row['geometry'].centroid.x, row['geometry'].centroid.y), ha='center', fontsize=8)
+
+# Adding a title to the plot
+plt.title('Local Economic Contribution in London Boroughs (per listing)', fontsize=20)
+
+# Removing the axes for a cleaner look
+ax.set_axis_off()
+
+# Display the plot
+plt.show()
+```
+
+### **Figure 5**
+
+```{python}
+### Draw a histogram ###
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
+
+# Sorting the DataFrame by ratio in descending order for better visual representation
+merged_sorted_df = merged_df.sort_values('contribution_per_listing', ascending=True)
+
+# Set a color board
+cmap = plt.get_cmap('RdBu_r')
+norm = mcolors.Normalize(vmin=merged_sorted_df['contribution_per_listing'].min(), vmax=merged_sorted_df['contribution_per_listing'].max())
+colors = cmap(norm(merged_sorted_df['contribution_per_listing']))
+
+# Plotting the bar chart
+fig, ax = plt.subplots(figsize=(10, 8))  # create a fig object and an ax object
+ax.barh(merged_sorted_df['neighbourhood_cleansed'], merged_sorted_df['contribution_per_listing'], color=colors)
+ax.set_xlabel('Contribution per Listing', fontsize=12)
+ax.set_ylabel('Neighbourhood', fontsize=12)
+ax.set_title('Economic Contribution in London Boroughs (per listing)', fontsize=20)
+
+# Create a colorbar
+sm = plt.cm.ScalarMappable(cmap=cmap, norm=norm)
+sm.set_array([])  # Just to show the colorbar
+cbar = plt.colorbar(sm, ax=ax)  # define prarmeter of ax
+
+plt.tight_layout()
+plt.show()
+```
+
+### **Figure 6 - Average contribution to bouroughs local tourist economy per listing** 
+
+### 7.2.4 Result: Average Local Economic Contribution Per Listing Per Borough
+According to Figure 5 and 6, the listings have larger average return to the local economy in inner London boroughs than outer London boroughs. The top contributor belongs to listings in Camden, Kensington and Chelsea and Richmond Upon Thames. From the equation, two independent variables are identified that lead to this result: a high occupancy and b, high price per night. This also correlates to previous results in Figure 3 and 4, where the occupancy and price per listing per night follows the same trend. 
+
+## 7.3 regulation implications
+
+### 7.3.1 Impose central London restrictions on multi-hosts and promote single-hosts to harness and maximise the local economic impact. 
+This promotion can involve incentives for hosts with only one property or a shared flat, alongside varying levels of taxation based on the number of listings for multi-hosts. Rebalancing the ratio of single and multi-hosts, especially in areas with high occupancy and prices, can rapidly boost the local economy while also preserving a authentic character of the location. 
+ 
+### 7.3.2 Incentivise outer London STL to develop higher occupancy and number of listings. 
+This could be achieved by incentivising Airbnb to propose discounted lets for single-hosts. The positive correlation of occupancy and local contribution from figure 4 and 5 indicates that enhancing occupancy can positively influence the tourism economy of non-central area, aligning with Airbnb’s asserted values.  
+ 
+### 7.3.3 Enhance monitoring and ensure data accuracy to enforce the 90-night limit. 
+@Nieuwland2018 highlighted London's lenient approach to Airbnb, leading to a surge in violations of regulations, notably surpassing the allowed Short-Term Let (STL) period of 90 days. Recent research conducted by the Greater London Authority (GLA) in Camden has uncovered a significantly higher magnitude of such activities compared to data available on Inside Airbnb. [@GLA2023] Their research showed that 50% of the listings in the five Inner London boroughs exceeded the 90-night limit. This stands in contrast to the seemingly low average of 10-11 days per listing portrayed in Figure 4 for these identified hotspots. 
+
+### 7.3.4 License STL hosts to improve compliance with regulation. 
+@Nieuwland2018 demonstrates the city of Denver benefits  from balancing externalities of STLs in three ways Firstly, it facilitates easier identification of violations by monitoring and regulating Airbnb concerning maximum days, listing and host types. Secondly, licensing system fosters hosts’ responsibility because it treats them as proper businesses rather than just platform users. Lastly, it leads to higher compliance rate. Denver’s number of STL listings dropped by 14.5% after enforcement of licenses in 2017  as unlawful listings were screened out. [@Arello2017] 
+
+## 7.4 Limitations
+Due to the limited scope of the study, the data cleaning approach as well as the model have some weaknesses including:
+Method limitation: STL business was identified by whether it’s multi- or single host. this preliminary estimation is not accurate because listing numbers may vary for Airbnb business. Better estimation can be done using cluster analysis.
+Model limitation: 100% of the single host income is considered in the local economy contribution, which is likely an overestimation. 
+Data limitation: It is evidenced in the GLA report and others that the data Airbnb provided is far from accurate. Therefore, it worths taking into consideration that the data we used from Inside Airbnb scrapping is also biased.
+
+## Sustainable Authorship Tools
+
+Your QMD file should automatically download your BibTeX file. We will then re-run the QMD file to generate the output successfully.
+
+Written in Markdown and generated from [Quarto](https://quarto.org/). Fonts used: [Spectral](https://fonts.google.com/specimen/Spectral) (mainfont), [Roboto](https://fonts.google.com/specimen/Roboto) (<span style="font-family:Sans-Serif;">sansfont</span>) and [JetBrains Mono](https://fonts.google.com/specimen/JetBrains%20Mono) (`monofont`). 
+
+## References
